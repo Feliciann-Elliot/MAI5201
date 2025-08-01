@@ -100,18 +100,29 @@ def extract_phone_numbers(text: str) -> List[str]:
     # - +X-XXX-XXX-XXXX (international)
     # - +XXXXXXXXXX (international without separators)
     
-    international_pattern = r'\+\d{1,3}-\d{1,4}-\d{1,4}-\d{4}'  # International format
-    international_separator = r'\+\d{1,3}\d{10}'  # International without separators
+    # Pattern 1: International numbers with mixed separators (space, dash, dot)
+    international_flex = r'\+\d{1,3}(?:[-\s\.]\d{1,4}){2,6}'
+
+    # Pattern 2: Vanity numbers like 1-800-FLOWERS, 800-GO-FEDEX
+    vanity_pattern = r'(?:1-)?\d{3}(?:-[A-Za-z0-9]{2,}){1,3}'
+
+    # Pattern 3: Local numbers
     local_patterns = [
-        r'\(\d{3}\) \d{3}-\d{4}',  # (XXX) XXX-XXXX
-        r'\d{3}\.\d{3}\.\d{4}',  # XXX.XXX.XXXX
-        r'\d{3}-\d{3}-\d{4}',  # XXX-XXX-XXXX
+        r'\(\d{3}\)\s*\d{3}-\d{4}',         # (XXX) XXX-XXXX
+        r'\d{3}[.-]\d{3}[.-]\d{4}',         # XXX.XXX.XXXX or XXX-XXX-XXXX
+        r'\d{3}\s\d{3}\s\d{4}',             # XXX XXX XXXX
     ]
-    
-    combined_patterns = [international_pattern, international_separator] + local_patterns  # Your regex pattern here
-    pattern = r'|'.join(combined_patterns)  # Combine patterns with OR operator
-    phone_numbers = re.findall(pattern, text)
-    
+
+    # Combine all patterns into one big regex
+    combined_patterns = [international_flex, vanity_pattern] + local_patterns
+    pattern = r'|'.join(combined_patterns)
+
+    # Extract all matching phone-like patterns
+    matches = re.findall(pattern, text)
+
+    # re.findall returns strings (because we used non-capturing groups `(?:...)`)
+    phone_numbers = [match.strip() for match in matches if match]
+
     return phone_numbers
 
 
@@ -170,6 +181,9 @@ def normalize_phone_number(phone: str) -> str:
 
     if not groups:
         return phone  # No number-like groups detected
+    
+    if(len(digits_str) == 11 and digits_str.startswith('1')):
+        return f'+1-{digits_str[1:4]}-{digits_str[4:7]}-{digits_str[7:]}'
 
     # Step 5: If no +country code found, and digits = 10, assume US/Canada
     if not any(g.startswith('+') for g in groups) and len(digits_str) == 10:
