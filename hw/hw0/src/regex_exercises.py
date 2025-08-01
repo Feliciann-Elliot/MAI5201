@@ -68,10 +68,11 @@ def extract_urls(text: str) -> List[str]:
     # - FTP: ftp://files.example.com
     # - With paths: https://example.com/path/to/page
     # - With query parameters: https://example.com/search?q=nlp
-    
-    pattern = r''  # Your regex pattern here
-    # TODO: Replace empty pattern with your implementation
-    return []
+
+
+    pattern = r'[a-zA-Z][a-zA-Z0-9+.-]*://[^\s\'",)>\]};]+'  # Your regex pattern
+    urls = re.findall(pattern, text)
+    return urls
 
 
 def extract_phone_numbers(text: str) -> List[str]:
@@ -506,4 +507,5 @@ if __name__ == "__main__":
     print("Emojis:", extract_emojis(sample_text))
     print("Dates:", extract_dates(sample_text))
     print("Times:", extract_times(sample_text))
+    print("Addresses:", extract_addresses(sample_text))
     print("Addresses:", extract_addresses(sample_text))
