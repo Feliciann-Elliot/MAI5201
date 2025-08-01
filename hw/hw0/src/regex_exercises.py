@@ -107,7 +107,7 @@ def extract_phone_numbers(text: str) -> List[str]:
         r'\d{3}\.\d{3}\.\d{4}',  # XXX.XXX.XXXX
         r'\d{3}-\d{3}-\d{4}',  # XXX-XXX-XXXX
     ]
-
+    
     combined_patterns = [international_pattern, international_separator] + local_patterns  # Your regex pattern here
     pattern = r'|'.join(combined_patterns)  # Combine patterns with OR operator
     phone_numbers = re.findall(pattern, text)
@@ -144,22 +144,52 @@ def normalize_phone_number(phone: str) -> str:
     # TODO: Format the digits as +XXX-XXX-XXXX
     # Handle cases where country code might be missing
 
+    phone = phone.strip()
+
+    # Step 1: Remove extensions like "ext 123", "x456", "extension 789"
+    phone = re.sub(r'\b(?:ext|extension|x)\s*\d+\b', '', phone, flags=re.IGNORECASE)
+
+    # Step 2: Handle vanity numbers (contains letters)
+    if re.search(r'[A-Za-z]', phone):
+        # Add +1- prefix if it looks like a US-style vanity number
+        if re.match(r'^\d{3}-\w+', phone):  # e.g. 800-FLOWERS
+            return f'+1-{phone}'
+        if re.match(r'^1-\d{3}-\w+', phone):  # already has 1-800-FLOWERS
+            return f'+{phone.lstrip("+")}'  # ensure it's +1 not just 1
+        return phone  # fallback: can't normalize, return original
+
+    # Step 3: Special handling for Guyana: 592 XXX XXXX (with or without +)
     digits = re.findall(r'\d', phone)
     digits_str = ''.join(digits)
-    
-    if len(digits_str) == 10:  # Local number without country code
-        area_code = digits_str[0:3]
-        first_half = digits_str[3:6]
-        second_half = digits_str[6:10]
-        return f'+{area_code}-{first_half}-{second_half}'
-    elif len(digits_str) == 11:
-        country_code = digits_str[0:1]
-        area_code = digits_str[1:4]
-        first_half = digits_str[4:7]
-        second_half = digits_str[7:11]
-        return f'+{country_code}-{area_code}-{first_half}-{second_half}'
 
-    return phone  # Your implementation here
+    if digits_str.startswith('592') and len(digits_str) == 10:
+        return f'+592-{digits_str[3:6]}-{digits_str[6:]}'
+
+    # Step 4: Attempt to extract number-like chunks (e.g., +33, 1, 42, 86...)
+    groups = re.findall(r'\+?\d+', phone)
+
+    if not groups:
+        return phone  # No number-like groups detected
+
+    # Step 5: If no +country code found, and digits = 10, assume US/Canada
+    if not any(g.startswith('+') for g in groups) and len(digits_str) == 10:
+        return f'+1-{digits_str[0:3]}-{digits_str[3:6]}-{digits_str[6:]}'
+
+    # Step 6: Reassemble groups into normalized format
+    normalized = []
+    for i, part in enumerate(groups):
+        if i == 0:
+            normalized.append(part if part.startswith('+') else f'+{part}')
+        else:
+            normalized.append(part)
+
+    result = '-'.join(normalized)
+
+    # Step 7: Only return normalized if it changed something meaningful
+    if result and result != phone:
+        return result
+
+    return phone  # fallback
 
 
 def extract_hashtags(text: str) -> List[str]:
