@@ -2,9 +2,9 @@
 MAI 5201 - Homework 0: Regular Expressions
 Part 1: Pattern Matching and Text Extraction
 
-Student Name: [Your Name Here]
-Student ID: [Your ID Here]
-Date: [Date]
+Student Name: Feliciann Elliot
+Student ID: 1022055
+Date: July 31, 2025
 
 Instructions:
 - Implement the functions below using regular expressions
@@ -100,9 +100,19 @@ def extract_phone_numbers(text: str) -> List[str]:
     # - +X-XXX-XXX-XXXX (international)
     # - +XXXXXXXXXX (international without separators)
     
-    pattern = r''  # Your regex pattern here
-    # TODO: Replace empty pattern with your implementation
-    return []
+    international_pattern = r'\+\d{1,3}-\d{1,4}-\d{1,4}-\d{4}'  # International format
+    international_separator = r'\+\d{1,3}\d{10}'  # International without separators
+    local_patterns = [
+        r'\(\d{3}\) \d{3}-\d{4}',  # (XXX) XXX-XXXX
+        r'\d{3}\.\d{3}\.\d{4}',  # XXX.XXX.XXXX
+        r'\d{3}-\d{3}-\d{4}',  # XXX-XXX-XXXX
+    ]
+
+    combined_patterns = [international_pattern, international_separator] + local_patterns  # Your regex pattern here
+    pattern = r'|'.join(combined_patterns)  # Combine patterns with OR operator
+    phone_numbers = re.findall(pattern, text)
+    
+    return phone_numbers
 
 
 def normalize_phone_number(phone: str) -> str:
@@ -133,8 +143,23 @@ def normalize_phone_number(phone: str) -> str:
     
     # TODO: Format the digits as +XXX-XXX-XXXX
     # Handle cases where country code might be missing
+
+    digits = re.findall(r'\d', phone)
+    digits_str = ''.join(digits)
     
-    return ''  # Your implementation here
+    if len(digits_str) == 10:  # Local number without country code
+        area_code = digits_str[0:3]
+        first_half = digits_str[3:6]
+        second_half = digits_str[6:10]
+        return f'+{area_code}-{first_half}-{second_half}'
+    elif len(digits_str) == 11:
+        country_code = digits_str[0:1]
+        area_code = digits_str[1:4]
+        first_half = digits_str[4:7]
+        second_half = digits_str[7:11]
+        return f'+{country_code}-{area_code}-{first_half}-{second_half}'
+
+    return phone  # Your implementation here
 
 
 def extract_hashtags(text: str) -> List[str]:
