@@ -40,10 +40,9 @@ def extract_emails(text: str) -> List[str]:
     # - With plus signs: user+tag@domain.com
     # - Various domain extensions: .com, .edu, .org, .co.uk, etc.
     
-    pattern = r''  # Your regex pattern here
-    # TODO: Replace the empty pattern above with your implementation
-    # For now, return empty list until implemented
-    return []
+    pattern = r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'  # Your regex pattern
+    emails = re.findall(pattern, text)
+    return emails  
 
 
 def extract_urls(text: str) -> List[str]:
