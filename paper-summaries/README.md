@@ -115,8 +115,20 @@ git push origin paper-summary-1-[your-name]
 ### Assignment 1: ELIZA (1966)
 - **Paper**: "ELIZA—A Computer Program For the Study of Natural Language Communication Between Man and Machine" by Joseph Weizenbaum
 - **URL**: https://web.stanford.edu/class/cs124/p36-weizenabaum.pdf
-- **Due Date**: July 25, 2025 @ 11:59 PM (GYD)
+- **Due Date**: July 29, 2025 @ 11:59 PM (GYD)
 - **Submission Directory**: `paper-summaries/assignment-1/`
+
+### Assignment 2: Neural Machine Translation with Subword Units (2016)
+- **Paper**: "Neural Machine Translation of Rare Words with Subword Units" by Rico Sennrich, Barry Haddow, Alexandra Birch
+- **URL**: https://aclanthology.org/P16-1162.pdf
+- **Due Date**: August 6, 2025 @ 11:59 PM (GYD)
+- **Submission Directory**: `paper-summaries/assignment-2/`
+
+### Assignment 3: Class-Based n-gram Models (1992)
+- **Paper**: "Class-Based n-gram Models of Natural Language" by Peter F. Brown, Peter V. deSouza, Robert L. Mercer, Vincent J. Della Pietra, Jenifer C. Lai
+- **URL**: https://aclanthology.org/J92-4003.pdf
+- **Due Date**: August 12, 2025 @ 11:59 PM (GYD)
+- **Submission Directory**: `paper-summaries/assignment-3/`
 
 ---
 

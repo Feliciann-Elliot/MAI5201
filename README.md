@@ -35,12 +35,12 @@ Lectures will be conducted via Zoom, and course materials will be available via 
 
 | Week | Topics | Readings | Assignments |
 |------|--------|----------|-------------|
-| 1 | **Introduction to Natural Language Processing**<br>- What is NLP?<br>- Historical development<br>- Core NLP tasks and applications<br>- Challenges in NLP<br>Slides: [Lecture 1] | Chapter 1: Introduction | - HW 0 Released<br>- Environment Setup |
-| 2 | **Text Processing Fundamentals**<br>- Regular Expressions<br>- Tokenization<br>- Edit Distance<br>- Text Normalization<br>Slides: [Lecture 2] | Chapter 2: Regular Expressions, Text Normalization, and Edit Distance | - Project Guidelines Released |
-| 3 | **N-gram Language Models**<br>- Statistical Language Models<br>- N-gram Models<br>- Smoothing Techniques<br>- Evaluation of Language Models<br>Slides: [Lecture 3] | Chapter 3: N-gram Language Models | - HW 0 Due<br>- HW 1 Released |
-| 4 | **Text Classification & Sentiment Analysis**<br>- Naive Bayes Classification<br>- Feature Engineering<br>- Sentiment Analysis<br>- Evaluation Metrics<br>Slides: [Lecture 4] | Chapter 4: Naive Bayes Classification and Sentiment | - Paper Presentation 1 |
-| 5 | **Logistic Regression**<br>- Binary and Multiclass Classification<br>- Feature Engineering<br>- Regularization<br>- Cross-validation<br>Slides: [Lecture 5] | Chapter 5: Logistic Regression | - HW 1 Due<br>- HW 2 Released |
-| 6 | **Vector Semantics and Embeddings**<br>- Distributional Semantics<br>- TF-IDF and PMI<br>- Word2Vec and GloVe<br>- Semantic Similarity<br>Slides: [Lecture 6] | Chapter 6: Vector Semantics and Embeddings | - Project Proposal Due |
+| 1 | **Introduction to Natural Language Processing**<br>- What is NLP?<br>- Historical development<br>- Core NLP tasks and applications<br>- Challenges in NLP<br>Slides: [Introduction](slides/week1/intro.md) \| [PDF](slides/week1/intro.pdf) | Chapter 1: Introduction | - [HW 0 Released](hw/hw0/README.md)<br>- Environment Setup |
+| 2 | **Text Processing Fundamentals**<br>- Regular Expressions<br>- Tokenization<br>- Edit Distance<br>- Text Normalization<br>Slides: [Text Processing](slides/week1/text_processing.pdf) \| [Edit Distance](slides/week2/med24.pdf) | Chapter 2: Regular Expressions, Text Normalization, and Edit Distance | - [Project Guidelines Released](#course-project) |
+| 3 | **N-gram Language Models**<br>- Statistical Language Models<br>- N-gram Models<br>- Smoothing Techniques<br>- Evaluation of Language Models<br>Slides: [Language Models](slides/week3/lm_jan25.pdf) | Chapter 3: N-gram Language Models | - [HW 0 Due](hw/hw0/README.md)<br>- HW 1 Released |
+| 4 | **Text Classification & Sentiment Analysis**<br>- Naive Bayes Classification<br>- Feature Engineering<br>- Sentiment Analysis<br>- Evaluation Metrics<br>Slides: [Lecture 4] | Chapter 4: Naive Bayes Classification and Sentiment | - [Paper Summary 1: ELIZA Due](paper-summaries/assignment-1/README.md)<br>- Paper Presentation 1 |
+| 5 | **Logistic Regression**<br>- Binary and Multiclass Classification<br>- Feature Engineering<br>- Regularization<br>- Cross-validation<br>Slides: [Lecture 5] | Chapter 5: Logistic Regression | - HW 1 Due<br>- HW 2 Released<br>- [Paper Summary 2: BPE Released](paper-summaries/assignment-2/README.md) |
+| 6 | **Vector Semantics and Embeddings**<br>- Distributional Semantics<br>- TF-IDF and PMI<br>- Word2Vec and GloVe<br>- Semantic Similarity<br>Slides: [Lecture 6] | Chapter 6: Vector Semantics and Embeddings | - [Paper Summary 2: BPE Due](paper-summaries/assignment-2/README.md)<br>- Project Proposal Due |
 | 7 | **Neural Networks for NLP**<br>- Feedforward Networks<br>- Backpropagation<br>- Neural Language Models<br>- Word Embeddings<br>Slides: [Lecture 7] | Chapter 7: Neural Networks and Neural Language Models | - HW 2 Due<br>- HW 3 Released |
 | 8 | **RNNs and LSTMs**<br>- Recurrent Neural Networks<br>- Long Short-Term Memory<br>- Gated Recurrent Units<br>- Sequence-to-Sequence Models<br>Slides: [Lecture 8] | Chapter 9: RNNs and LSTMs | - Paper Presentation 2 |
 | 9 | **Transformers**<br>- Attention Mechanisms<br>- Self-Attention<br>- Transformer Architecture<br>- BERT and GPT Introduction<br>Slides: [Lecture 9] | Chapter 10: Transformers and Pretrained Language Models | - HW 3 Due<br>- HW 4 Released |
@@ -97,6 +97,8 @@ Each student is expected to read assigned research papers before their presentat
 📌 **Submission**: Submit one paragraph (150-250 words) for each assigned paper before the presentation date.
 
 📌 **Purpose**: Develop critical reading skills and prepare for meaningful discussion during paper presentations.
+
+📌 **Assignments**: See [Paper Summaries Directory](paper-summaries/README.md) for specific assignments and submission guidelines.
 
 ## Course Project
 
