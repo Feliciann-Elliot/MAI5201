@@ -124,6 +124,12 @@ git push origin paper-summary-1-[your-name]
 - **Due Date**: August 6, 2025 @ 11:59 PM (GYD)
 - **Submission Directory**: `paper-summaries/assignment-2/`
 
+### Assignment 3: Class-Based n-gram Models (1992)
+- **Paper**: "Class-Based n-gram Models of Natural Language" by Peter F. Brown, Peter V. deSouza, Robert L. Mercer, Vincent J. Della Pietra, Jenifer C. Lai
+- **URL**: https://aclanthology.org/J92-4003.pdf
+- **Due Date**: August 12, 2025 @ 11:59 PM (GYD)
+- **Submission Directory**: `paper-summaries/assignment-3/`
+
 ---
 
 *For questions about assignments or technical issues with Git/GitHub, please email Dr. Clarke at christopher.clarke@uog.edu.gy or create an issue in the course repository.*
