@@ -227,9 +227,11 @@ def extract_hashtags(text: str) -> List[str]:
     # Hint: Hashtags start with # and can contain letters, numbers, and underscores
     # Return the hashtag text without the # symbol
     
-    pattern = r''  # Your regex pattern here
-    # TODO: Replace empty pattern with your implementation
-    return []
+    pattern = r'(?<![\w@])#([A-Za-z0-9_]+)'
+    hashtags = re.findall(pattern, text)
+    
+    # Filter: must contain at least one letter (not just numbers)
+    return [hashtag for hashtag in hashtags if re.search(r'[A-Za-z]', hashtag)]
 
 
 def extract_mentions(text: str) -> List[str]:
@@ -576,5 +578,6 @@ if __name__ == "__main__":
     print("Emojis:", extract_emojis(sample_text))
     print("Dates:", extract_dates(sample_text))
     print("Times:", extract_times(sample_text))
+    print("Addresses:", extract_addresses(sample_text))
     print("Addresses:", extract_addresses(sample_text))
     print("Addresses:", extract_addresses(sample_text))
