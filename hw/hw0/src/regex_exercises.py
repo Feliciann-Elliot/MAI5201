@@ -419,9 +419,9 @@ def extract_times(text: str) -> List[str]:
     # - 9:00am / 5:30p.m. (various AM/PM formats)
     
     patterns = [
-        r'',  # Pattern for 12-hour format with AM/PM
-        r'',  # Pattern for 24-hour format
-        r'',  # Pattern for compact AM/PM format
+        r'\b(?:1[0-2]|[1-9]):[0-5]\d\s*(?:AM|PM|am|pm)\b',  # Pattern for 12-hour format with AM/PM
+        r'\b(?:[01]?[0-9]|2[0-3]):[0-5]\d:[0-5]\d\b',  # Pattern for 24-hour format
+        r'\b(?:1[0-2]|[1-9]):[0-5]\d\s*(?:[ap]\.?\s*[mM]\.?)\b',  # Pattern for compact AM/PM format
     ]
     
     times = []
