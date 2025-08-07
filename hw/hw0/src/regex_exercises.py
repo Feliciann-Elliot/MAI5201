@@ -419,16 +419,21 @@ def extract_times(text: str) -> List[str]:
     # - 9:00am / 5:30p.m. (various AM/PM formats)
     
     patterns = [
-        r'\b(?:1[0-2]|[1-9]):[0-5]\d\s*(?:AM|PM|am|pm)\b',  # Pattern for 12-hour format with AM/PM
-        r'\b(?:[01]?[0-9]|2[0-3]):[0-5]\d:[0-5]\d\b',  # Pattern for 24-hour format
-        r'\b(?:1[0-2]|[1-9]):[0-5]\d\s*(?:[ap]\.?\s*[mM]\.?)\b',  # Pattern for compact AM/PM format
-    ]
+    # Match HH:MM:SS 24-hour format (most specific first)
+    r'\b(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d\b',
     
+    # Match 12-hour format with AM/PM (require AM/PM to avoid overlap with 24-hour)
+    r'\b(?:1[0-2]|0?[1-9]):[0-5]\d\s*(?:[Aa][Mm]|[Pp][Mm]|[Aa]\.?[Mm]\.?|[Pp]\.?[Mm]\.?)\.?',
+    
+    # Match 24-hour HH:MM format (only match if no AM/PM follows)
+    r'\b(?:[01]\d|2[0-3]):[0-5]\d(?!\s*[AaPp])\b',
+    ]
+
     times = []
     for pattern in patterns:
         if pattern:  # Only process non-empty patterns
-            times.extend(re.findall(pattern, text))
-    
+            times.extend(re.findall(pattern, text, flags=re.IGNORECASE))
+
     return times
 
 
