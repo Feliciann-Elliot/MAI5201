@@ -286,9 +286,73 @@ def extract_emojis(text: str) -> List[str]:
     # Hint: Emojis are Unicode characters in specific ranges
     # You can use Unicode ranges or a simplified pattern for common emojis
     
-    pattern = r''  # Your regex pattern here
+    pattern = (
+    r'(?:[\U0001F1E6-\U0001F1FF]{2})'
+    r'|['
+    r'\U0001F300-\U0001F9FF'
+    r'\U0001F0CF'
+    r'\U0001F600-\U0001F64F'
+    r'\U0001F680-\U0001F6FF'
+    r'\u2600-\u26FF'
+    r'\u2700-\u27BF'
+    r'\u231A-\u231B'
+    r'\u23E9-\u23EF'
+    r'\u23F0-\u23F3'
+    r'\u23F8-\u23FA'
+    r'\u25AA-\u25AB'
+    r'\u25B6'
+    r'\u25C0'
+    r'\u25FB-\u25FE'
+    r'\u2605'
+    r'\u2606'
+    r'\u2614'
+    r'\u2615'
+    r'\u261D'
+    r'\u2640'
+    r'\u2642'
+    r'\u2648-\u2653'
+    r'\u267F'
+    r'\u2693'
+    r'\u26A1'
+    r'\u26AA'
+    r'\u26AB'
+    r'\u26BD'
+    r'\u26BE'
+    r'\u26C4'
+    r'\u26C5'
+    r'\u26CE'
+    r'\u26D4'
+    r'\u26EA'
+    r'\u26F2'
+    r'\u26F3'
+    r'\u26F5'
+    r'\u26FA'
+    r'\u26FD'
+    r'\u2705'
+    r'\u270A-\u270B'
+    r'\u2728'
+    r'\u274C'
+    r'\u274E'
+    r'\u2753-\u2755'
+    r'\u2757'
+    r'\u2795-\u2797'
+    r'\u27B0'
+    r'\u27BF'
+    r'\u2B1B-\u2B1C'
+    r'\u2B50'
+    r'\u2B55'
+    r'\u2328'
+    r'\u2194-\u2199'
+    r'\u21A9-\u21AA'
+    r'\u2B05-\u2B07'
+    r'\uFFFD'
+    r']'
+    r'[\U0001F3FB-\U0001F3FF\uFE0F\u200D\u2640\u2642]*'
+)
+    #pattern = r'[\U0001F300-\U0001F9FF\U0001F0CF\U0001F600-\U0001F64F\U0001F680-\U0001F6FF\u2600-\u26FF\u2700-\u27BF\u231A-\u231B\u23E9-\u23EF\u23F0-\u23F3\u23F8-\u23FA\u25AA-\u25AB\u25B6\u25C0\u25FB-\u25FE\u2605\u2606\u2614\u2615\u261D\u2640\u2642\u2648-\u2653\u267F\u2693\u26A1\u26AA\u26AB\u26BD\u26BE\u26C4\u26C5\u26CE\u26D4\u26EA\u26F2\u26F3\u26F5\u26FA\u26FD\u2705\u270A-\u270B\u2728\u274C\u274E\u2753-\u2755\u2757\u2795-\u2797\u27B0\u27BF\u2B1B-\u2B1C\u2B50\u2B55\u2328\u2194-\u2199\u21A9-\u21AA\U0001F1E6-\U0001F1FF][\U0001F3FB-\U0001F3FF\uFE0F\u200D\u2640\u2642]*'  # Your regex pattern here
     # TODO: Replace empty pattern with your implementation
-    return []
+    emojis = re.findall(pattern, text)
+    return emojis
 
 
 def extract_dates(text: str) -> List[str]:
