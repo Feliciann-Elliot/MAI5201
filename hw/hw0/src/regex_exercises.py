@@ -258,7 +258,7 @@ def extract_mentions(text: str) -> List[str]:
     # Hint: Mentions start with @ and can contain letters, numbers, underscores, and hyphens
     # Return the mention text without the @ symbol
     
-    pattern = r'@([A-Za-z0-9_-]+)'  # Your regex pattern here
+    pattern = r'(?<!\w)@([A-Za-z0-9_-]+)'  # Your regex pattern here
     # TODO: Replace empty pattern with your implementation
     mentions = re.findall(pattern, text)
     exceptions = {'mention', 'mentions', 'spaces'}
