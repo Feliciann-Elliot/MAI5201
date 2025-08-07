@@ -419,26 +419,39 @@ def extract_times(text: str) -> List[str]:
     # - 9:00am / 5:30p.m. (various AM/PM formats)
     
     patterns = [
-    # Match HH:MM:SS 24-hour format (most specific - no overlap with others)
+    # Match HH:MM:SS 24-hour format
     r'\b(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d\b',
-    
+
     # Match 12-hour format with AM/PM 
     r'\b(?:1[0-2]|0?[1-9]):[0-5]\d\s*(?:[Aa][Mm]|[Pp][Mm]|[Aa]\.?[Mm]\.?|[Pp]\.?[Mm]\.?)\.?',
-    
-    # Match HH:MM 24-hour with colon (prevent overlap with HH:MM:SS)
-    r'\b(?:[01]\d|2[0-3]):[0-5]\d\b(?!\s*[:AMPMampm\.])',
-    
+
+    # Match HH:MM 24-hour with colon — prevent HH:MM:SS & AM/PM
+    r'\b(?:[01]\d|2[0-3]):[0-5]\d\b(?!\s*(?::[0-5]\d|[AaPp][Mm]|[AaPp]\.?[Mm]\.?))',
+
+    # Match H:MM format (single digit hours) — prevent HH:MM:SS & AM/PM
+    r'\b[0-9]:[0-5]\d\b(?!\s*(?::[0-5]\d|[AaPp][Mm]|[AaPp]\.?[Mm]\.?))',
+
     # Match HH.MM 24-hour with dot
     r'\b(?:[01]\d|2[0-3])\.[0-5]\d\b',
-    
+
     # Match HhMM format
     r'\b(?:[01]?\d)h[0-5]\d\b',
-    ]
 
+    # Match HH:MMh format
+    r'\b(?:[01]\d|2[0-3]):[0-5]\d\s*h\b',
+    ]
+    
     times = []
+    matched_spans = []
+
     for pattern in patterns:
-        if pattern:  # Only process non-empty patterns
-            times.extend(re.findall(pattern, text, flags=re.IGNORECASE))
+        if pattern:
+            for match in re.finditer(pattern, text, flags=re.IGNORECASE):
+                span = match.span()
+            # Only keep if it doesn't overlap an existing match
+                if not any(span[0] >= s and span[1] <= e for s, e in matched_spans):
+                    times.append(match.group())
+                    matched_spans.append(span)
 
     return times
 
