@@ -380,10 +380,11 @@ def extract_dates(text: str) -> List[str]:
     # - 25-12-2025 (DD-MM-YYYY)
     
     patterns = [
-    r'(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},\s+\d{4}',  # Pattern for Month Day, Year
+    r'(?:January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{1,2},\s+\d{4}',  # Pattern for Month Day, Year (including abbreviations)
     r'\d{4}-\d{2}-\d{2}',  # Pattern for YYYY-MM-DD
     r'\d{1,2}/\d{1,2}/\d{4}',  # Pattern for MM/DD/YYYY
     r'\d{1,2}-\d{1,2}-\d{4}',  # Pattern for DD-MM-YYYY
+    r'\d{1,2}\.\d{2}\.\d{4}',  # Pattern for DD.MM.YYYY
     ]
     
     dates = []
