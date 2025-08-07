@@ -419,14 +419,20 @@ def extract_times(text: str) -> List[str]:
     # - 9:00am / 5:30p.m. (various AM/PM formats)
     
     patterns = [
-    # Match HH:MM:SS 24-hour format (most specific first)
+    # Match HH:MM:SS 24-hour format (most specific - no overlap with others)
     r'\b(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d\b',
     
-    # Match 12-hour format with AM/PM (require AM/PM to avoid overlap with 24-hour)
+    # Match 12-hour format with AM/PM 
     r'\b(?:1[0-2]|0?[1-9]):[0-5]\d\s*(?:[Aa][Mm]|[Pp][Mm]|[Aa]\.?[Mm]\.?|[Pp]\.?[Mm]\.?)\.?',
     
-    # Match 24-hour HH:MM format (only match if no AM/PM follows)
-    r'\b(?:[01]\d|2[0-3]):[0-5]\d(?!\s*[AaPp])\b',
+    # Match HH:MM 24-hour with colon (prevent overlap with HH:MM:SS)
+    r'\b(?:[01]\d|2[0-3]):[0-5]\d\b(?!\s*[:AMPMampm\.])',
+    
+    # Match HH.MM 24-hour with dot
+    r'\b(?:[01]\d|2[0-3])\.[0-5]\d\b',
+    
+    # Match HhMM format
+    r'\b(?:[01]?\d)h[0-5]\d\b',
     ]
 
     times = []
