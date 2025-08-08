@@ -189,7 +189,29 @@ def normalize_text(text: str) -> str:
     #    - r'[.]{3,}' for ellipses (3+ dots)
     # 4. Normalize whitespace: r'\s+' -> ' ' and strip()
     
-    return text  # TODO: Replace with your implementation
+    text = text.lower()
+    
+    # Step 2: Remove accents and diacritics using Unicode normalization
+    # NFD decomposes characters, then we remove combining marks (Mn category)
+    text = unicodedata.normalize('NFD', text)
+    text = ''.join(char for char in text if unicodedata.category(char) != 'Mn')
+    
+    # Step 3: Remove excessive punctuation
+    # Remove 2 or more consecutive exclamation marks
+    text = re.sub(r'[!]{2,}', '', text)
+    # Remove 2 or more consecutive question marks
+    text = re.sub(r'[?]{2,}', '', text)
+    # Remove 3 or more consecutive dots (ellipses)
+    text = re.sub(r'[.]{3,}', '', text)
+    
+    # Step 4: Remove remaining punctuation (except spaces)
+    # Keep only alphanumeric characters and spaces
+    text = re.sub(r'[^a-z0-9\s]', '', text)
+    
+    # Step 5: Normalize whitespace - collapse multiple spaces and strip
+    text = re.sub(r'\s+', ' ', text).strip()
+    
+    return text
 
 
 def remove_accents(text: str) -> str:
