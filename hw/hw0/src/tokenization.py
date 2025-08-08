@@ -13,7 +13,7 @@ Instructions:
 - Do not modify function signatures or import additional libraries
 """
 
-import re
+import re, regex
 import unicodedata
 from typing import List, Tuple
 
@@ -91,7 +91,12 @@ def sentence_tokenize(text: str) -> List[str]:
     # 1. Split on sentence-ending punctuation (.!?)
     # 2. Handle abbreviations like "Dr.", "U.S.A."
     # 3. Preserve punctuation at end of sentences
-    return []
+    sentences = regex.split(r'(?<!\b(?:[A-Z][a-z]*\.|[A-Z]\.)+|(?:Dr|Mr|Mrs|Ms|Prof|Sr|Jr|vs|etc|Inc|Ltd|Co|Corp|St|Ave|Rd)\.)(?<=[.!?])\s+', text)
+    sentences = [s.strip() for s in sentences if s.strip()]
+
+    if not sentences:
+        return [text.strip()] if text.strip() else []
+    return sentences
 
 
 def advanced_tokenize(text: str) -> List[str]:
