@@ -64,7 +64,8 @@ def punctuation_tokenize(text: str) -> List[str]:
     # 1. Use regex to separate words from punctuation
     # 2. Consider contractions (they should be split)
     # 3. Pattern ideas: \w+ for words, [^\w\s] for punctuation
-    return []
+    tokens = re.findall(r"\w+|[^\w\s]", text, re.UNICODE)
+    return tokens
 
 
 def sentence_tokenize(text: str) -> List[str]:
