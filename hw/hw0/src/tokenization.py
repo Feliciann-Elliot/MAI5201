@@ -18,6 +18,7 @@ import unicodedata
 from typing import List, Tuple
 import nltk
 from nltk.tokenize import TweetTokenizer
+from collections import defaultdict, Counter
 
 try:
     nltk.data.find('tokenizers/punkt')
@@ -334,12 +335,59 @@ class BPETokenizer:
             corpus = ["hello world", "hello there", "world peace"]
             bpe.train(corpus)
         """
-        # TODO: Implement BPE training algorithm
-        # 1. Initialize vocabulary with individual characters
-        # 2. Count frequency of all adjacent character pairs
-        # 3. Merge the most frequent pair
-        # 4. Repeat until num_merges is reached
-        pass
+        # Initialize vocabulary with individual characters
+        self.vocab = set()
+        
+        # Pre-tokenize corpus into words and count frequencies
+        word_freq = defaultdict(int)
+        for text in corpus:
+            # Simple word tokenization (you might want to use a more sophisticated one)
+            words = text.split()
+            for word in words:
+                word_freq[word] += 1
+                # Add characters to vocabulary
+                for char in word:
+                    self.vocab.add(char)
+        
+        # Add end-of-word marker to vocabulary
+        self.vocab.add('</w>')
+        
+        # Convert words to initial token sequences
+        word_tokens = {}
+        for word in word_freq:
+            word_tokens[word] = self._get_word_tokens(word)
+        
+        # Perform BPE merges
+        for i in range(self.num_merges):
+            # Count all adjacent pairs
+            pair_counts = defaultdict(int)
+            
+            for word, tokens in word_tokens.items():
+                freq = word_freq[word]
+                pairs = self._get_pairs(tokens)
+                for pair in pairs:
+                    pair_counts[pair] += freq
+            
+            # Stop if no pairs found
+            if not pair_counts:
+                break
+                
+            # Find the most frequent pair
+            best_pair = max(pair_counts, key=pair_counts.get)
+            
+            # If the best pair occurs only once, stop merging
+            if pair_counts[best_pair] < 2:
+                break
+            
+            # Add the new merged token to vocabulary
+            new_token = ''.join(best_pair)
+            self.vocab.add(new_token)
+            
+            # Record the merge operation
+            self.merges.append(best_pair)
+            
+            # Apply the merge to all words
+            word_tokens = self._merge_vocab(best_pair, word_tokens, word_freq)
     
     def _get_word_tokens(self, word):
         """
@@ -354,9 +402,7 @@ class BPETokenizer:
         Example:
             _get_word_tokens("hello") -> ["h", "e", "l", "l", "o", "</w>"]
         """
-        # TODO: Implement character-level tokenization
-        # Add </w> marker to indicate end of word
-        pass
+        return list(word) + ['</w>']
     
     def _get_pairs(self, word_tokens):
         """
@@ -371,27 +417,43 @@ class BPETokenizer:
         Example:
             _get_pairs(["h", "e", "l", "l", "o"]) -> {("h", "e"), ("e", "l"), ("l", "l"), ("l", "o")}
         """
-        # TODO: Extract all adjacent pairs from token list
-        pass
+        pairs = set()
+        for i in range(len(word_tokens) - 1):
+            pairs.add((word_tokens[i], word_tokens[i + 1]))
+        return pairs
     
-    def _merge_vocab(self, pair, word_freq):
+    def _merge_vocab(self, pair, word_tokens, word_freq):
         """
         Merge a specific pair in the vocabulary.
         
         Args:
             pair (Tuple[str, str]): Pair of tokens to merge
+            word_tokens (Dict[str, List[str]]): Dictionary mapping words to their token lists
             word_freq (Dict[str, int]): Word frequency dictionary
             
         Returns:
-            Dict[str, int]: Updated word frequency dictionary
-            
-        Example:
-            If pair = ("l", "l") and we have "h e l l o", 
-            it becomes "h e ll o"
+            Dict[str, List[str]]: Updated word tokens dictionary
         """
-        # TODO: Merge the specified pair in all words
-        # Update the word_freq dictionary with merged tokens
-        pass
+        first, second = pair
+        new_token = first + second
+        
+        updated_word_tokens = {}
+        
+        for word, tokens in word_tokens.items():
+            # Apply merges to this word's tokens
+            new_tokens = []
+            i = 0
+            while i < len(tokens):
+                if i < len(tokens) - 1 and tokens[i] == first and tokens[i + 1] == second:
+                    # Merge the pair
+                    new_tokens.append(new_token)
+                    i += 2
+                else:
+                    new_tokens.append(tokens[i])
+                    i += 1
+            updated_word_tokens[word] = new_tokens
+            
+        return updated_word_tokens
     
     def tokenize(self, text):
         """
@@ -406,11 +468,38 @@ class BPETokenizer:
         Example:
             tokenize("hello world") -> ["hell", "o", "w", "or", "ld"]
         """
-        # TODO: Apply learned merges to tokenize new text
-        # 1. Split text into words
-        # 2. Apply BPE merges to each word
-        # 3. Return flattened list of tokens
-        pass
+        # Split text into words
+        words = text.split()
+        all_tokens = []
+        
+        for word in words:
+            # Start with character-level tokenization
+            tokens = self._get_word_tokens(word)[:-1]  # Remove </w> for processing
+            tokens.append('</w>')
+            
+            # Apply all learned merges in order
+            for merge_pair in self.merges:
+                first, second = merge_pair
+                new_tokens = []
+                i = 0
+                while i < len(tokens):
+                    if i < len(tokens) - 1 and tokens[i] == first and tokens[i + 1] == second:
+                        # Merge the pair
+                        merged_token = first + second
+                        new_tokens.append(merged_token)
+                        i += 2
+                    else:
+                        new_tokens.append(tokens[i])
+                        i += 1
+                tokens = new_tokens
+            
+            # Remove </w> marker from final tokens
+            if tokens and tokens[-1] == '</w>':
+                tokens = tokens[:-1]
+            
+            all_tokens.extend(tokens)
+        
+        return all_tokens
     
     def get_vocabulary(self):
         """
