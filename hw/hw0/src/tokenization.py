@@ -38,7 +38,7 @@ def whitespace_tokenize(text: str) -> List[str]:
     """
     # TODO: Implement basic whitespace tokenization
     # Hint: Use the string split() method
-    return []
+    return text.split()
 
 
 def punctuation_tokenize(text: str) -> List[str]:
