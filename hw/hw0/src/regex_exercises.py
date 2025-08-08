@@ -607,9 +607,10 @@ def extract_code_blocks(text: str) -> List[str]:
     # Use re.DOTALL flag to match across multiple lines
     # Return the code content without the ``` markers and language identifier
     
-    pattern = r''  # Your regex pattern here
+    pattern = r'```(?:[a-zA-Z]*)\n?([\s\S]*?)\n?```'  # Your regex pattern here
     # TODO: Replace empty pattern with your implementation
-    return []
+    code_blocks = re.findall(pattern, text)
+    return code_blocks
 
 
 # Additional utility functions for testing
