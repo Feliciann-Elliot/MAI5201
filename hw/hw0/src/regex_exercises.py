@@ -511,9 +511,31 @@ def extract_citations(text: str) -> List[str]:
     # - (Smith, 2023)
     # - Multiple citations separated by semicolons
     
-    pattern = r''  # Your regex pattern here
+    pattern = r'''
+        \b                                      # Word boundary to avoid partial matches
+        [A-Z][a-z]+                             # First author's surname
+        (?:                                     # Start optional group for "et al." or "and Another"
+            (?:\s+et\ al\.)                     # Optional "et al."
+            |                                   # or
+            (?:\s+and\s+[A-Z][a-z]+)            # Optional "and SecondAuthor"
+        )?                                      # End optional group
+        \s*\(                                   # Opening parenthesis for year
+            \d{4}                               # 4-digit year
+        \)                                      # Closing parenthesis
+        |
+        (?<=\()                                 # Lookbehind to stay inside parenthesis
+        [A-Z][a-z]+                             # First author's surname
+        (?:                                     # Start optional group for "et al." or "and Another"
+            (?:\s+et\ al\.)                     # Optional "et al."
+            |                                   # or
+            (?:\s+and\s+[A-Z][a-z]+)            # Optional "and SecondAuthor"
+        )?                                      # End optional group
+        ,\s*\d{4}                               # Comma and 4-digit year
+        (?=\))                                  # Lookahead to stay inside closing parenthesis
+    ''' # Your regex pattern here
     # TODO: Replace empty pattern with your implementation
-    return []
+    citations = re.findall(pattern, text, re.VERBOSE)
+    return [citation.strip() for citation in citations]
 
 
 def extract_code_blocks(text: str) -> List[str]:
