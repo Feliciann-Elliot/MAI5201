@@ -479,10 +479,11 @@ def extract_sections(text: str) -> List[str]:
 
     remove_inline = re.sub(r'`[^`]*`', '', to_ignore)  # Remove inline code blocks
 
-    pattern = r'^(#{1,6})\s+(.+?)\s*$'
+    pattern = r'^(?!#{7,})(#{1,6})\s*(.+?)\s*$'
     sections = [
         match[1].strip()
         for match in re.findall(pattern, remove_inline, flags=re.MULTILINE)
+        if match[1].strip()  # Ensure header text is not empty
     ]
     return sections
 
