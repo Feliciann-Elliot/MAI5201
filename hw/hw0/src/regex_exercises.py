@@ -475,10 +475,14 @@ def extract_sections(text: str) -> List[str]:
     # Hint: Markdown headers start with one or more # symbols
     # Return the header text without the # symbols and leading/trailing whitespace
     
-    pattern = r''  # Your regex pattern here
-    # TODO: Replace empty pattern with your implementation
-    return []
+    to_ignore = re.sub(r'^\s*```.*?^\s*```\s*$', '', text, flags=re.DOTALL | re.MULTILINE)
 
+    pattern = r'^(#{1,6})\s+(.+?)\s*$'
+    sections = [
+        match[1].strip()
+        for match in re.findall(pattern, to_ignore, flags=re.MULTILINE)
+    ]
+    return sections
 
 def extract_citations(text: str) -> List[str]:
     """
