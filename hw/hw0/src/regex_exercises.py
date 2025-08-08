@@ -512,31 +512,80 @@ def extract_citations(text: str) -> List[str]:
     # - Multiple citations separated by semicolons
     
     pattern = r'''
-        \b                                      # Word boundary to avoid partial matches
-        [A-Z][a-z]+                             # First author's surname
-        (?:                                     # Start optional group for "et al." or "and Another"
-            (?:\s+et\ al\.)                     # Optional "et al."
-            |                                   # or
-            (?:\s+and\s+[A-Z][a-z]+)            # Optional "and SecondAuthor"
-        )?                                      # End optional group
-        \s*\(                                   # Opening parenthesis for year
-            \d{4}                               # 4-digit year
-        \)                                      # Closing parenthesis
-        |
-        (?<=\()                                 # Lookbehind to stay inside parenthesis
-        [A-Z][a-z]+                             # First author's surname
-        (?:                                     # Start optional group for "et al." or "and Another"
-            (?:\s+et\ al\.)                     # Optional "et al."
-            |                                   # or
-            (?:\s+and\s+[A-Z][a-z]+)            # Optional "and SecondAuthor"
-        )?                                      # End optional group
-        ,\s*\d{4}                               # Comma and 4-digit year
-        (?=\))                                  # Lookahead to stay inside closing parenthesis
-    ''' # Your regex pattern here
-    # TODO: Replace empty pattern with your implementation
-    citations = re.findall(pattern, text, re.VERBOSE)
-    return [citation.strip() for citation in citations]
+        # ---- Narrative citations: Author (2023), Author et al. (2022, p. 5) ----
+        (?:
+            (?:[A-Z][a-z]+|[A-Z]{2,})                        # First word: last name or acronym
+            (?:\s(?:and|et\ al\.|of|the|[A-Z][a-z]+))*       # Additional words
+        )
+        \s*
+        \(
+            \d{4}                                            # Year
+            (?:,\s*p{1,2}\.?\s*\d+(?:[-–]\d+)?)?             # Optional page numbers
+        \)
 
+        |
+
+        # ---- Parenthetical citations: (Author, 2023), (Author et al., 2022; Author, 2020) ----
+        (?<=\()
+        (?:
+            (?:[A-Z][a-z]+|[A-Z]{2,})
+            (?:\s(?:and|et\ al\.|of|the|[A-Z][a-z]+))*
+        )
+        ,\s*
+        \d{4}
+        (?:,\s*p{1,2}\.?\s*\d+(?:[-–]\d+)?)?
+        (?=\))
+    '''
+
+    # Step 1: Match narrative and simple parenthetical citations
+    raw_matches = re.findall(pattern, text, re.VERBOSE)
+
+    # Step 2: Extract grouped citations from inside parentheses (e.g. (Author, 2023; Author et al., 2022))
+    parenthetical_blocks = re.findall(r'\(([^()]+)\)', text)
+    parenthetical_citations = []
+
+    inner_citation_pattern = re.compile(r'''
+        ^
+        (?:
+            (?:[A-Z][a-z]+|[A-Z]{2,})
+            (?:\s(?:and|et\ al\.|of|the|[A-Z][a-z]+))*
+        )
+        ,\s*
+        \d{4}
+        (?:,\s*p{1,2}\.?\s*\d+(?:[-–]\d+)?)?
+        $
+    ''', re.VERBOSE)
+
+    for block in parenthetical_blocks:
+        parts = [p.strip() for p in block.split(';')]
+        for part in parts:
+            if inner_citation_pattern.fullmatch(part):
+                parenthetical_citations.append(part)
+
+    # Step 3: Clean narrative matches to remove any leading text like "See Jones (2022)"
+    citation_cleaner = re.compile(r'''
+        (?:
+            (?:[A-Z][a-z]+|[A-Z]{2,})
+            (?:\s(?:and|et\ al\.|of|the|[A-Z][a-z]+))*
+        )
+        \s*
+        \(
+            \d{4}
+            (?:,\s*p{1,2}\.?\s*\d+(?:[-–]\d+)?)?
+        \)
+    ''', re.VERBOSE)
+
+    cleaned_narrative_citations = []
+    for match in raw_matches:
+        cleaned = citation_cleaner.search(match)
+        if cleaned:
+            cleaned_narrative_citations.append(cleaned.group(0))
+        else:
+            cleaned_narrative_citations.append(match)
+
+    # Step 4: Combine and deduplicate
+    citations = list(set(cleaned_narrative_citations + parenthetical_citations))
+    return citations
 
 def extract_code_blocks(text: str) -> List[str]:
     """
