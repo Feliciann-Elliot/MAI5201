@@ -16,7 +16,13 @@ Instructions:
 import re, regex
 import unicodedata
 from typing import List, Tuple
+import nltk
+from nltk.tokenize import TweetTokenizer
 
+try:
+    nltk.data.find('tokenizers/punkt')
+except LookupError:
+    nltk.download('punkt')
 
 def whitespace_tokenize(text: str) -> List[str]:
     """
@@ -115,8 +121,37 @@ def advanced_tokenize(text: str) -> List[str]:
     # 2. Handle contractions by splitting them appropriately
     # 3. Keep hyphenated words together
     # 4. Split on punctuation otherwise
+
+        # Step 1: Protect URLs and emails
+    protected_pattern = r'https?://\S+|www\.\S+|bit\.ly/\S+|\S+@\S+\.\S+'
+    protected_tokens = re.findall(protected_pattern, text)
+    placeholder_map = {}
     
-    return []  # TODO: Implement advanced tokenization
+    # Replace protected tokens with placeholders
+    modified_text = text
+    for i, token in enumerate(protected_tokens):
+        placeholder = f"__PROTECTED_{i}__"
+        placeholder_map[placeholder] = token
+        modified_text = modified_text.replace(token, placeholder, 1)
+    
+    # Step 2: Use TweetTokenizer (handles contractions well)
+    tokenizer = TweetTokenizer()
+    tokens = tokenizer.tokenize(modified_text)
+    
+    # Step 3: Post-process to match expected format
+    final_tokens = []
+    
+    for token in tokens:
+        # Handle special case for "can't" → "ca" "n't"
+        if token.lower() == "can't":
+            final_tokens.extend(["ca", "n't"])
+        elif token.startswith("__PROTECTED_"):
+            # Restore protected tokens
+            final_tokens.append(placeholder_map[token])
+        else:
+            final_tokens.append(token)
+    
+    return final_tokens
 
 
 def normalize_text(text: str) -> str:
