@@ -734,17 +734,29 @@ def parse_log_files(log_text: str) -> List[dict]:
     # IP - USER [TIMESTAMP] "METHOD PATH PROTOCOL" STATUS SIZE
     # Use named groups for easier extraction
     
-    # pattern = r''  # Your regex pattern here with named groups
+    pattern = r'^(?P<ip>\S+)\s+-\s+(?P<user>\S+)\s+\[(?P<timestamp>[^\]]+)\]\s+"(?P<method>\w+)\s+(?P<path>[^"\s]+)[^"]*"\s+(?P<status>\d{3})\s+(?P<size>\d+)'  # Your regex pattern here with named groups
     
     log_entries = []
     lines = log_text.strip().split('\n')
     
     for line in lines:
         if line.strip():  # Skip empty lines
+            match = re.match(pattern, line.strip())
+            if match:
+                entry = {
+                    'ip': match.group('ip'),
+                    'user': match.group('user'),
+                    'timestamp': match.group('timestamp'),
+                    'method': match.group('method'),
+                    'path': match.group('path'),
+                    'status': match.group('status'),
+                    'size': match.group('size')
+                }
+                log_entries.append(entry)
             # TODO: Parse each line and extract components
             pass
     
-    return []  # TODO: Implement log parsing
+    return log_entries  # TODO: Implement log parsing
 
 
 if __name__ == "__main__":
