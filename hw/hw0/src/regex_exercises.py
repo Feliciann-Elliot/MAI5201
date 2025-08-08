@@ -475,12 +475,14 @@ def extract_sections(text: str) -> List[str]:
     # Hint: Markdown headers start with one or more # symbols
     # Return the header text without the # symbols and leading/trailing whitespace
     
-    to_ignore = re.sub(r'^\s*```.*?^\s*```\s*$', '', text, flags=re.DOTALL | re.MULTILINE)
+    to_ignore = re.sub(r'^\s*```[\s\S]*?(?:^\s*```\s*$|$(?![\r\n]))', '', text, flags=re.MULTILINE)
+
+    remove_inline = re.sub(r'`[^`]*`', '', to_ignore)  # Remove inline code blocks
 
     pattern = r'^(#{1,6})\s+(.+?)\s*$'
     sections = [
         match[1].strip()
-        for match in re.findall(pattern, to_ignore, flags=re.MULTILINE)
+        for match in re.findall(pattern, remove_inline, flags=re.MULTILINE)
     ]
     return sections
 
