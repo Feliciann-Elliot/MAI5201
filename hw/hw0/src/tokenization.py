@@ -292,6 +292,27 @@ def edit_distance(str1: str, str2: str) -> int:
     return dp[m][n]  # TODO: Replace with your implementation
 
 
+def load_dictionary(filepath):
+    """
+    Load dictionary from file, skipping first 4 lines.
+    """
+    try:
+        with open(filepath, 'r') as file:
+            lines = file.readlines()
+            # Skip first 4 lines, get words from line 5 onwards
+            words = []
+            for i, line in enumerate(lines):
+                if i >= 4:  # Skip first 4 lines
+                    word = line.strip().lower()
+                    if word:  # Skip empty lines
+                        words.append(word)
+            return words
+    except FileNotFoundError:
+        print(f"Dictionary file {filepath} not found")
+        return []
+
+load_dictionary('data/english_words.txt')  # Load dictionary if needed
+
 def find_closest_word(word: str, candidates: List[str]) -> str:
     """
     Find the closest word from a list of candidates using edit distance.
@@ -321,7 +342,16 @@ def find_closest_word(word: str, candidates: List[str]) -> str:
     if not candidates:
         return ""
     
-    return ""  # TODO: Replace with your implementation
+    min_distance = float('inf')
+    closest_word = candidates[0]
+
+    for candidate in candidates:
+        distance = edit_distance(word, candidate)
+        if distance < min_distance:
+            min_distance = distance
+            closest_word = candidate
+
+    return closest_word  # TODO: Replace with your implementation
 
 
 # Q11: BPE Algorithm Implementation
@@ -564,7 +594,30 @@ def levenshtein_distance(s1, s2):
     # This should be the same as edit_distance but with a different name
     # Use the same dynamic programming approach
     
-    return 0  # TODO: Replace with your implementation
+    m, n = len(s1), len(s2)
+
+    # Create a DP table
+    dp = [[0] * (n + 1) for _ in range(m + 1)]
+
+    # Initialize first row and column
+    for i in range(m + 1):
+        dp[i][0] = i
+    for j in range(n + 1):
+        dp[0][j] = j
+
+    # Fill the DP table
+    for i in range(1, m + 1):
+        for j in range(1, n + 1):
+            if s1[i - 1] == s2[j - 1]:
+                cost = 0
+            else:
+                cost = 1
+            dp[i][j] = min(dp[i - 1][j] + 1, # Deletion
+                dp[i][j - 1] + 1, # Insertion
+                dp[i - 1][j - 1] + cost  # Substitution
+                )    
+
+    return dp[m][n]  # TODO: Replace with your implementation
 
 
 def spell_check(word, candidates):
@@ -589,34 +642,13 @@ def spell_check(word, candidates):
     # 1. Handle empty candidates
     # 2. Calculate distance to each candidate
     # 3. Return candidate with minimum distance
-    
-    # Load the English words from a file
-    try:
-        with open('data/english_words.txt', 'r') as f:
-            lines = f.read().splitlines()
-            words = []
-            for i, line in enumerate(lines):
-                if i >= 4: # Skip the first 4 lines
-                    word = line.strip().lower()
-                    if word:   # Ensure the line is not empty
-                        words.append(word)
-    except FileNotFoundError:
-        print("english-words.txt not found. Please provide the file.")
-        return ""
+
 
     if not candidates:
         return word
-    
-    min_distance = float('inf')
-    best_candidate = word
 
-    for candidate in candidates:
-        distance = edit_distance(word, candidate)
-        if distance < min_distance:
-            min_distance = distance
-            best_candidate = candidate
     
-    return best_candidate  # TODO: Replace with your implementation
+    return find_closest_word(word, candidates)  # TODO: Replace with your implementation
 
 
 def name_matching(query, candidates):
