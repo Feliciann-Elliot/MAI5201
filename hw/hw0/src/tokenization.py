@@ -678,4 +678,17 @@ def name_matching(query, candidates):
     if not candidates:
         return query
     
-    return ""  # TODO: Replace with your implementation
+    min_distance = float('inf')
+    best_match = query
+
+    query_lower = query.lower()
+
+    for candidate in candidates:
+        candidate_lower = candidate.lower()
+        distance = levenshtein_distance(query_lower, candidate_lower)
+
+        if distance < min_distance:
+            min_distance = distance
+            best_match = candidate
+
+    return best_match  # TODO: Replace with your implementation
