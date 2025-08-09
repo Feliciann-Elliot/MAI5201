@@ -267,7 +267,29 @@ def edit_distance(str1: str, str2: str) -> int:
     #    - Else: dp[i][j] = 1 + min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1])
     # 4. Return dp[m][n] where m, n are string lengths
     
-    return 0  # TODO: Replace with your implementation
+    m, n = len(str1), len(str2)
+
+    # Create a DP table with dimensions (m+1) x (n+1)
+    dp = [[0] * (n + 1) for _ in range(m + 1)]
+
+    # Initialize first row and column
+    for i in range(m + 1):
+        dp[i][0] = i
+    for j in range(n + 1):
+        dp[0][j] = j
+    
+    # Fill the DP table
+    for i in range(1, m + 1):
+        for j in range(1, n + 1):
+            if str1[i - 1] == str2[j - 1]:
+                cost = 0
+            else:
+                cost = 1
+            dp[i][j] = min(dp[i - 1][j] + 1,    # Deletion
+                           dp[i][j - 1] + 1,    # Insertion
+                           dp[i - 1][j - 1] + cost)
+
+    return dp[m][n]  # TODO: Replace with your implementation
 
 
 def find_closest_word(word: str, candidates: List[str]) -> str:
@@ -568,10 +590,33 @@ def spell_check(word, candidates):
     # 2. Calculate distance to each candidate
     # 3. Return candidate with minimum distance
     
+    # Load the English words from a file
+    try:
+        with open('data/english_words.txt', 'r') as f:
+            lines = f.read().splitlines()
+            words = []
+            for i, line in enumerate(lines):
+                if i >= 4: # Skip the first 4 lines
+                    word = line.strip().lower()
+                    if word:   # Ensure the line is not empty
+                        words.append(word)
+    except FileNotFoundError:
+        print("english-words.txt not found. Please provide the file.")
+        return ""
+
     if not candidates:
         return word
     
-    return ""  # TODO: Replace with your implementation
+    min_distance = float('inf')
+    best_candidate = word
+
+    for candidate in candidates:
+        distance = edit_distance(word, candidate)
+        if distance < min_distance:
+            min_distance = distance
+            best_candidate = candidate
+    
+    return best_candidate  # TODO: Replace with your implementation
 
 
 def name_matching(query, candidates):
