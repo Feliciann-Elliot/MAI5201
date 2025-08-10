@@ -4,7 +4,7 @@ Part 1: Pattern Matching and Text Extraction
 
 Student Name: Feliciann Elliot
 Student ID: 1022055
-Date: August 9, 2025
+Date: August 9, 2025 
 
 Instructions:
 - Implement the functions below using regular expressions

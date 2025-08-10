@@ -4,7 +4,7 @@ Part 2: Text tokenization and normalization
 
 Student Name: Feliciann Elliot
 Student ID: 1022055
-Date: August 9, 2025
+Date: August 9, 2025 
 
 Instructions:
 - Implement the tokenization and text processing functions below
