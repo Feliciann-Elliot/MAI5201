@@ -1,0 +1,51 @@
+Welcome to MAI 5201 Natural Language Processing!
+
+Contact Information:
+- Email: info@university.edu.gy and admin@uog.edu.gy  
+- Phone: (592) 123-4567 or 592.123.4567
+- Website: https://www.uog.edu.gy and http://nlp.university.edu
+
+Social Media:
+Follow us @UofG for updates! #NLP #MachineLearning #AI #University 🎓
+Don't forget to check @DrClarke for lecture notes 📚
+
+Important Dates:
+- Classes start: July 15, 2025 at 8:30 PM
+- Assignment 1 due: August 5, 2025 
+- Mid-term exam: 2025-09-15 at 14:00:00
+- Final project presentations: December 10, 2025
+
+Office Locations:
+Main Campus: 123 Main Street, Georgetown, Guyana
+Branch Office: 456 Water Street, New Amsterdam, Berbice  
+Mailing Address: P.O. Box 789, Georgetown, GY 12345
+
+Weather updates: Today is sunny ☀️ and warm 🌡️ Perfect for outdoor study sessions! 😊
+
+Academic References:
+According to Smith et al. (2023) and Jones (2022), natural language processing has advanced significantly.
+See also Brown and Davis (2021) for foundational concepts.
+
+Code Example:
+```python
+def tokenize(text):
+    return text.split()
+
+def normalize(text):
+    return text.lower().strip()
+```
+
+# Course Structure
+## Week 1: Introduction to NLP
+### 1.1 Historical Perspective  
+### 1.2 Modern Applications
+
+Document processing example with various formats:
+- Email: student.name+courses@university.edu.gy
+- International phone: +1-800-555-0123
+- Time formats: 3:30 PM, 14:30:00, 9:00am, 11:59 p.m.
+- Date formats: 12/25/2025, 25-12-2025, January 1, 2025
+
+Visit our research portal at https://research.university.edu.gy/nlp?category=courses&year=2025 for more resources.
+
+Happy coding! 🚀 #CodeLife #AI2025
