@@ -13,17 +13,10 @@ Instructions:
 - Do not modify function signatures or import additional libraries
 """
 
-import re, regex
+import re
 import unicodedata
 from typing import List, Tuple
-import nltk
-from nltk.tokenize import TweetTokenizer
-from collections import defaultdict, Counter
 
-try:
-    nltk.data.find('tokenizers/punkt')
-except LookupError:
-    nltk.download('punkt')
 
 def whitespace_tokenize(text: str) -> List[str]:
     """
@@ -45,7 +38,7 @@ def whitespace_tokenize(text: str) -> List[str]:
     """
     # TODO: Implement basic whitespace tokenization
     # Hint: Use the string split() method
-    return text.split()
+    return []
 
 
 def punctuation_tokenize(text: str) -> List[str]:
@@ -71,8 +64,7 @@ def punctuation_tokenize(text: str) -> List[str]:
     # 1. Use regex to separate words from punctuation
     # 2. Consider contractions (they should be split)
     # 3. Pattern ideas: \w+ for words, [^\w\s] for punctuation
-    tokens = re.findall(r"\w+|[^\w\s]", text, re.UNICODE)
-    return tokens
+    return []
 
 
 def sentence_tokenize(text: str) -> List[str]:
@@ -98,12 +90,7 @@ def sentence_tokenize(text: str) -> List[str]:
     # 1. Split on sentence-ending punctuation (.!?)
     # 2. Handle abbreviations like "Dr.", "U.S.A."
     # 3. Preserve punctuation at end of sentences
-    sentences = regex.split(r'(?<!\b(?:[A-Z][a-z]*\.|[A-Z]\.)+|(?:Dr|Mr|Mrs|Ms|Prof|Sr|Jr|vs|etc|Inc|Ltd|Co|Corp|St|Ave|Rd)\.)(?<=[.!?])\s+', text)
-    sentences = [s.strip() for s in sentences if s.strip()]
-
-    if not sentences:
-        return [text.strip()] if text.strip() else []
-    return sentences
+    return []
 
 
 def advanced_tokenize(text: str) -> List[str]:
@@ -122,37 +109,8 @@ def advanced_tokenize(text: str) -> List[str]:
     # 2. Handle contractions by splitting them appropriately
     # 3. Keep hyphenated words together
     # 4. Split on punctuation otherwise
-
-        # Step 1: Protect URLs and emails
-    protected_pattern = r'https?://\S+|www\.\S+|bit\.ly/\S+|\S+@\S+\.\S+'
-    protected_tokens = re.findall(protected_pattern, text)
-    placeholder_map = {}
     
-    # Replace protected tokens with placeholders
-    modified_text = text
-    for i, token in enumerate(protected_tokens):
-        placeholder = f"__PROTECTED_{i}__"
-        placeholder_map[placeholder] = token
-        modified_text = modified_text.replace(token, placeholder, 1)
-    
-    # Step 2: Use TweetTokenizer (handles contractions well)
-    tokenizer = TweetTokenizer()
-    tokens = tokenizer.tokenize(modified_text)
-    
-    # Step 3: Post-process to match expected format
-    final_tokens = []
-    
-    for token in tokens:
-        # Handle special case for "can't" → "ca" "n't"
-        if token.lower() == "can't":
-            final_tokens.extend(["ca", "n't"])
-        elif token.startswith("__PROTECTED_"):
-            # Restore protected tokens
-            final_tokens.append(placeholder_map[token])
-        else:
-            final_tokens.append(token)
-    
-    return final_tokens
+    return []  # TODO: Implement advanced tokenization
 
 
 def normalize_text(text: str) -> str:
@@ -190,29 +148,7 @@ def normalize_text(text: str) -> str:
     #    - r'[.]{3,}' for ellipses (3+ dots)
     # 4. Normalize whitespace: r'\s+' -> ' ' and strip()
     
-    text = text.lower()
-    
-    # Step 2: Remove accents and diacritics using Unicode normalization
-    # NFD decomposes characters, then we remove combining marks (Mn category)
-    text = unicodedata.normalize('NFD', text)
-    text = ''.join(char for char in text if unicodedata.category(char) != 'Mn')
-    
-    # Step 3: Remove excessive punctuation
-    # Remove 2 or more consecutive exclamation marks
-    text = re.sub(r'[!]{2,}', '', text)
-    # Remove 2 or more consecutive question marks
-    text = re.sub(r'[?]{2,}', '', text)
-    # Remove 3 or more consecutive dots (ellipses)
-    text = re.sub(r'[.]{3,}', '', text)
-    
-    # Step 4: Remove remaining punctuation (except spaces)
-    # Keep only alphanumeric characters and spaces
-    text = re.sub(r'[^a-z0-9\s]', '', text)
-    
-    # Step 5: Normalize whitespace - collapse multiple spaces and strip
-    text = re.sub(r'\s+', ' ', text).strip()
-    
-    return text
+    return text  # TODO: Replace with your implementation
 
 
 def remove_accents(text: str) -> str:
@@ -267,51 +203,8 @@ def edit_distance(str1: str, str2: str) -> int:
     #    - Else: dp[i][j] = 1 + min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1])
     # 4. Return dp[m][n] where m, n are string lengths
     
-    m, n = len(str1), len(str2)
+    return 0  # TODO: Replace with your implementation
 
-    # Create a DP table with dimensions (m+1) x (n+1)
-    dp = [[0] * (n + 1) for _ in range(m + 1)]
-
-    # Initialize first row and column
-    for i in range(m + 1):
-        dp[i][0] = i
-    for j in range(n + 1):
-        dp[0][j] = j
-    
-    # Fill the DP table
-    for i in range(1, m + 1):
-        for j in range(1, n + 1):
-            if str1[i - 1] == str2[j - 1]:
-                cost = 0
-            else:
-                cost = 1
-            dp[i][j] = min(dp[i - 1][j] + 1,    # Deletion
-                           dp[i][j - 1] + 1,    # Insertion
-                           dp[i - 1][j - 1] + cost)
-
-    return dp[m][n]  # TODO: Replace with your implementation
-
-
-def load_dictionary(filepath):
-    """
-    Load dictionary from file, skipping first 4 lines.
-    """
-    try:
-        with open(filepath, 'r') as file:
-            lines = file.readlines()
-            # Skip first 4 lines, get words from line 5 onwards
-            words = []
-            for i, line in enumerate(lines):
-                if i >= 4:  # Skip first 4 lines
-                    word = line.strip().lower()
-                    if word:  # Skip empty lines
-                        words.append(word)
-            return words
-    except FileNotFoundError:
-        print(f"Dictionary file {filepath} not found")
-        return []
-
-load_dictionary('data/english_words.txt')  # Load dictionary if needed
 
 def find_closest_word(word: str, candidates: List[str]) -> str:
     """
@@ -342,16 +235,7 @@ def find_closest_word(word: str, candidates: List[str]) -> str:
     if not candidates:
         return ""
     
-    min_distance = float('inf')
-    closest_word = candidates[0]
-
-    for candidate in candidates:
-        distance = edit_distance(word, candidate)
-        if distance < min_distance:
-            min_distance = distance
-            closest_word = candidate
-
-    return closest_word  # TODO: Replace with your implementation
+    return ""  # TODO: Replace with your implementation
 
 
 # Q11: BPE Algorithm Implementation
@@ -387,59 +271,12 @@ class BPETokenizer:
             corpus = ["hello world", "hello there", "world peace"]
             bpe.train(corpus)
         """
-        # Initialize vocabulary with individual characters
-        self.vocab = set()
-        
-        # Pre-tokenize corpus into words and count frequencies
-        word_freq = defaultdict(int)
-        for text in corpus:
-            # Simple word tokenization (you might want to use a more sophisticated one)
-            words = text.split()
-            for word in words:
-                word_freq[word] += 1
-                # Add characters to vocabulary
-                for char in word:
-                    self.vocab.add(char)
-        
-        # Add end-of-word marker to vocabulary
-        self.vocab.add('</w>')
-        
-        # Convert words to initial token sequences
-        word_tokens = {}
-        for word in word_freq:
-            word_tokens[word] = self._get_word_tokens(word)
-        
-        # Perform BPE merges
-        for i in range(self.num_merges):
-            # Count all adjacent pairs
-            pair_counts = defaultdict(int)
-            
-            for word, tokens in word_tokens.items():
-                freq = word_freq[word]
-                pairs = self._get_pairs(tokens)
-                for pair in pairs:
-                    pair_counts[pair] += freq
-            
-            # Stop if no pairs found
-            if not pair_counts:
-                break
-                
-            # Find the most frequent pair
-            best_pair = max(pair_counts, key=pair_counts.get)
-            
-            # If the best pair occurs only once, stop merging
-            if pair_counts[best_pair] < 2:
-                break
-            
-            # Add the new merged token to vocabulary
-            new_token = ''.join(best_pair)
-            self.vocab.add(new_token)
-            
-            # Record the merge operation
-            self.merges.append(best_pair)
-            
-            # Apply the merge to all words
-            word_tokens = self._merge_vocab(best_pair, word_tokens, word_freq)
+        # TODO: Implement BPE training algorithm
+        # 1. Initialize vocabulary with individual characters
+        # 2. Count frequency of all adjacent character pairs
+        # 3. Merge the most frequent pair
+        # 4. Repeat until num_merges is reached
+        pass
     
     def _get_word_tokens(self, word):
         """
@@ -454,7 +291,9 @@ class BPETokenizer:
         Example:
             _get_word_tokens("hello") -> ["h", "e", "l", "l", "o", "</w>"]
         """
-        return list(word) + ['</w>']
+        # TODO: Implement character-level tokenization
+        # Add </w> marker to indicate end of word
+        pass
     
     def _get_pairs(self, word_tokens):
         """
@@ -469,43 +308,27 @@ class BPETokenizer:
         Example:
             _get_pairs(["h", "e", "l", "l", "o"]) -> {("h", "e"), ("e", "l"), ("l", "l"), ("l", "o")}
         """
-        pairs = set()
-        for i in range(len(word_tokens) - 1):
-            pairs.add((word_tokens[i], word_tokens[i + 1]))
-        return pairs
+        # TODO: Extract all adjacent pairs from token list
+        pass
     
-    def _merge_vocab(self, pair, word_tokens, word_freq):
+    def _merge_vocab(self, pair, word_freq):
         """
         Merge a specific pair in the vocabulary.
         
         Args:
             pair (Tuple[str, str]): Pair of tokens to merge
-            word_tokens (Dict[str, List[str]]): Dictionary mapping words to their token lists
             word_freq (Dict[str, int]): Word frequency dictionary
             
         Returns:
-            Dict[str, List[str]]: Updated word tokens dictionary
-        """
-        first, second = pair
-        new_token = first + second
-        
-        updated_word_tokens = {}
-        
-        for word, tokens in word_tokens.items():
-            # Apply merges to this word's tokens
-            new_tokens = []
-            i = 0
-            while i < len(tokens):
-                if i < len(tokens) - 1 and tokens[i] == first and tokens[i + 1] == second:
-                    # Merge the pair
-                    new_tokens.append(new_token)
-                    i += 2
-                else:
-                    new_tokens.append(tokens[i])
-                    i += 1
-            updated_word_tokens[word] = new_tokens
+            Dict[str, int]: Updated word frequency dictionary
             
-        return updated_word_tokens
+        Example:
+            If pair = ("l", "l") and we have "h e l l o", 
+            it becomes "h e ll o"
+        """
+        # TODO: Merge the specified pair in all words
+        # Update the word_freq dictionary with merged tokens
+        pass
     
     def tokenize(self, text):
         """
@@ -520,38 +343,11 @@ class BPETokenizer:
         Example:
             tokenize("hello world") -> ["hell", "o", "w", "or", "ld"]
         """
-        # Split text into words
-        words = text.split()
-        all_tokens = []
-        
-        for word in words:
-            # Start with character-level tokenization
-            tokens = self._get_word_tokens(word)[:-1]  # Remove </w> for processing
-            tokens.append('</w>')
-            
-            # Apply all learned merges in order
-            for merge_pair in self.merges:
-                first, second = merge_pair
-                new_tokens = []
-                i = 0
-                while i < len(tokens):
-                    if i < len(tokens) - 1 and tokens[i] == first and tokens[i + 1] == second:
-                        # Merge the pair
-                        merged_token = first + second
-                        new_tokens.append(merged_token)
-                        i += 2
-                    else:
-                        new_tokens.append(tokens[i])
-                        i += 1
-                tokens = new_tokens
-            
-            # Remove </w> marker from final tokens
-            if tokens and tokens[-1] == '</w>':
-                tokens = tokens[:-1]
-            
-            all_tokens.extend(tokens)
-        
-        return all_tokens
+        # TODO: Apply learned merges to tokenize new text
+        # 1. Split text into words
+        # 2. Apply BPE merges to each word
+        # 3. Return flattened list of tokens
+        pass
     
     def get_vocabulary(self):
         """
@@ -594,30 +390,7 @@ def levenshtein_distance(s1, s2):
     # This should be the same as edit_distance but with a different name
     # Use the same dynamic programming approach
     
-    m, n = len(s1), len(s2)
-
-    # Create a DP table
-    dp = [[0] * (n + 1) for _ in range(m + 1)]
-
-    # Initialize first row and column
-    for i in range(m + 1):
-        dp[i][0] = i
-    for j in range(n + 1):
-        dp[0][j] = j
-
-    # Fill the DP table
-    for i in range(1, m + 1):
-        for j in range(1, n + 1):
-            if s1[i - 1] == s2[j - 1]:
-                cost = 0
-            else:
-                cost = 1
-            dp[i][j] = min(dp[i - 1][j] + 1, # Deletion
-                dp[i][j - 1] + 1, # Insertion
-                dp[i - 1][j - 1] + cost  # Substitution
-                )    
-
-    return dp[m][n]  # TODO: Replace with your implementation
+    return 0  # TODO: Replace with your implementation
 
 
 def spell_check(word, candidates):
@@ -642,13 +415,11 @@ def spell_check(word, candidates):
     # 1. Handle empty candidates
     # 2. Calculate distance to each candidate
     # 3. Return candidate with minimum distance
-
-
+    
     if not candidates:
         return word
-
     
-    return find_closest_word(word, candidates)  # TODO: Replace with your implementation
+    return ""  # TODO: Replace with your implementation
 
 
 def name_matching(query, candidates):
@@ -678,17 +449,4 @@ def name_matching(query, candidates):
     if not candidates:
         return query
     
-    min_distance = float('inf')
-    best_match = query
-
-    query_lower = query.lower()
-
-    for candidate in candidates:
-        candidate_lower = candidate.lower()
-        distance = levenshtein_distance(query_lower, candidate_lower)
-
-        if distance < min_distance:
-            min_distance = distance
-            best_match = candidate
-
-    return best_match  # TODO: Replace with your implementation
+    return ""  # TODO: Replace with your implementation
