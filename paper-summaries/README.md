@@ -130,6 +130,18 @@ git push origin paper-summary-1-[your-name]
 - **Due Date**: August 12, 2025 @ 11:59 PM (GYD)
 - **Submission Directory**: `paper-summaries/assignment-3/`
 
+### Assignment 4: Sentiment Classification using Machine Learning Techniques (2002)
+- **Paper**: "Thumbs up? Sentiment Classification using Machine Learning Techniques" by Bo Pang, Lillian Lee, Shivakumar Vaithyanathan
+- **URL**: https://aclanthology.org/W02-1011.pdf
+- **Due Date**: August 28, 2025 @ 11:59 PM (GYD)
+- **Submission Directory**: `paper-summaries/assignment-4/`
+
+### Assignment 5: Efficient Estimation of Word Representations in Vector Space (2013)
+- **Paper**: "Efficient Estimation of Word Representations in Vector Space" by Tomas Mikolov, Kai Chen, Greg Corrado, Jeffrey Dean
+- **URL**: https://arxiv.org/abs/1301.3781
+- **Due Date**: September 4, 2025 @ 11:59 PM (GYD)
+- **Submission Directory**: `paper-summaries/assignment-5/`
+
 ---
 
 *For questions about assignments or technical issues with Git/GitHub, please email Dr. Clarke at christopher.clarke@uog.edu.gy or create an issue in the course repository.*

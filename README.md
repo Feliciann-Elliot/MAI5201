@@ -42,12 +42,12 @@ Lectures will be conducted via Zoom, and course materials will be available via 
 | 5 | **Logistic Regression**<br>- Binary and Multiclass Classification<br>- Feature Engineering<br>- Regularization<br>- Cross-validation<br>Slides: [Lecture 5] | Chapter 5: Logistic Regression | - HW 1 Due<br>- HW 2 Released<br>- [Paper Summary 2: BPE Released](paper-summaries/assignment-2/README.md) |
 | 6 | **Vector Semantics and Embeddings**<br>- Distributional Semantics<br>- TF-IDF and PMI<br>- Word2Vec and GloVe<br>- Semantic Similarity<br>Slides: [Lecture 6] | Chapter 6: Vector Semantics and Embeddings | - [Paper Summary 2: BPE Due](paper-summaries/assignment-2/README.md)<br>- Project Proposal Due |
 | 7 | **Neural Networks for NLP**<br>- Feedforward Networks<br>- Backpropagation<br>- Neural Language Models<br>- Word Embeddings<br>Slides: [Lecture 7] | Chapter 7: Neural Networks and Neural Language Models | - HW 2 Due<br>- HW 3 Released |
-| 8 | **RNNs and LSTMs**<br>- Recurrent Neural Networks<br>- Long Short-Term Memory<br>- Gated Recurrent Units<br>- Sequence-to-Sequence Models<br>Slides: [Lecture 8] | Chapter 9: RNNs and LSTMs | - Paper Presentation 2 |
-| 9 | **Transformers**<br>- Attention Mechanisms<br>- Self-Attention<br>- Transformer Architecture<br>- BERT and GPT Introduction<br>Slides: [Lecture 9] | Chapter 10: Transformers and Pretrained Language Models | - HW 3 Due<br>- HW 4 Released |
+| 8 | **RNNs and LSTMs**<br>- Recurrent Neural Networks<br>- Long Short-Term Memory<br>- Gated Recurrent Units<br>- Sequence-to-Sequence Models<br>Slides: [Lecture 8] | Chapter 9: RNNs and LSTMs | - [Paper Summary 3: Class-based n-grams Due](paper-summaries/assignment-3/README.md)<br>- [Paper Selection Due](research-paper-presentations/README.md) |
+| 9 | **Transformers**<br>- Attention Mechanisms<br>- Self-Attention<br>- Transformer Architecture<br>- BERT and GPT Introduction<br>Slides: [Lecture 9] | Chapter 10: Transformers and Pretrained Language Models | - HW 3 Due<br>- HW 4 Released<br>- [Research Paper Presentations 1](research-paper-presentations/README.md) |
 | 10 | **Large Language Models**<br>- GPT Family Models<br>- Scaling Laws<br>- Emergent Abilities<br>- Training and Inference<br>Slides: [Lecture 10] | Chapter 12: Prompting, In-Context Learning, and Instruction Tuning | - Project Progress Report |
-| 11 | **Masked Language Models**<br>- BERT and Variants<br>- Pre-training Objectives<br>- Fine-tuning Strategies<br>- Task-specific Applications<br>Slides: [Lecture 11] | Chapter 11: Transfer Learning with Pretrained Language Models | - HW 4 Due<br>- HW 5 Released |
-| 12 | **Model Alignment & Advanced Techniques**<br>- Prompting Strategies<br>- In-Context Learning<br>- Instruction Tuning<br>- RLHF and Alignment<br>Slides: [Lecture 12] | Chapter 12: Prompting, In-Context Learning, and Instruction Tuning | - Paper Presentation 3 |
-| 13 | **Advanced NLP Applications**<br>- Information Extraction<br>- Question Answering<br>- Machine Translation<br>- Dialogue Systems<br>Slides: [Lecture 13] | Selected Chapters and Recent Papers | - HW 5 Due |
+| 11 | **Masked Language Models**<br>- BERT and Variants<br>- Pre-training Objectives<br>- Fine-tuning Strategies<br>- Task-specific Applications<br>Slides: [Lecture 11] | Chapter 11: Transfer Learning with Pretrained Language Models | - HW 4 Due<br>- HW 5 Released<br>- [Research Paper Presentations 2](research-paper-presentations/README.md) |
+| 12 | **Model Alignment & Advanced Techniques**<br>- Prompting Strategies<br>- In-Context Learning<br>- Instruction Tuning<br>- RLHF and Alignment<br>Slides: [Lecture 12] | Chapter 12: Prompting, In-Context Learning, and Instruction Tuning | - [Paper Summary 4: Sentiment Classification Due](paper-summaries/assignment-4/README.md) |
+| 13 | **Advanced NLP Applications**<br>- Information Extraction<br>- Question Answering<br>- Machine Translation<br>- Dialogue Systems<br>Slides: [Lecture 13] | Selected Chapters and Recent Papers | - HW 5 Due<br>- [Research Paper Presentations 3](research-paper-presentations/README.md) |
 | 14 | **Ethics in NLP & Current Research**<br>- Bias in Language Models<br>- Fairness and Transparency<br>- Current Research Frontiers<br>- Course Review<br>Slides: [Lecture 14] | Recent Papers on Ethics and Bias | |
 | 15 | **Project Presentations** | No Readings | - Final Project Due<br>- Project Presentations |
 
@@ -73,15 +73,36 @@ There will be 5 homework assignments designed to cover core NLP concepts, includ
 
 ### Research Paper Presentations
 
-Each student must present one research paper on a core NLP topic. Presentations should be 15-20 minutes followed by 5-10 minutes of discussion.
+Each student must present one research paper from an approved paper bank covering foundational and cutting-edge NLP research. Presentations are 30 minutes each (25 min presentation + 5 min Q&A) and are scheduled across three key weeks in the course.
 
-📌 **Paper Selection**: Students must select papers from a provided list or get approval for alternative papers by Week 3.
+📌 **Paper Selection**: Students must select papers from the [approved paper bank](research-paper-presentations/README.md) by **August 28, 2025**.
+
+📌 **Presentation Schedule**:
+• **Week 9** (Sep 9-11): Transformers & Attention mechanisms
+• **Week 11** (Sep 23-25): Pre-trained Language Models  
+• **Week 13** (Oct 7-9): Advanced Techniques & Scaling
 
 📌 **Presentation Requirements**:
-• Clear explanation of the research problem
-• Methodology and key contributions
-• Critical analysis and limitations
-• Relevance to course topics
+• Comprehensive coverage of methodology and contributions
+• Critical analysis of strengths and limitations
+• Professional-quality slides (PDF format)
+• Effective handling of Q&A session
+• Clear explanation of technical concepts
+
+📌 **Approved Papers Include**:
+• GloVe: Global Vectors for Word Representation
+• Long Short-Term Memory (LSTM)
+• Deep Contextualized Word Representations (ELMo)
+• Attention is All You Need (Transformers)
+• BERT: Pre-training of Deep Bidirectional Transformers
+• Language Models are Few-Shot Learners (GPT-3)
+• Scaling Laws for Neural Language Models
+• Training Language Models with Human Feedback (InstructGPT)
+• Text-to-Text Transfer Transformer (T5)
+
+📌 **Submission Process**: Follow the same GitHub workflow as paper summaries - submit slides via Pull Request 24 hours before presentation.
+
+See the [Research Paper Presentations Directory](research-paper-presentations/README.md) for complete details, submission templates, and evaluation criteria.
 
 ### Paper Summaries
 
