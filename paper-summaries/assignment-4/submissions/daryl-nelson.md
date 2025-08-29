@@ -2,7 +2,7 @@
 **Student ID**: 1021215  
 **Assignment**: Paper Summary 4  
 **Date**: 28/08/2025  
-**Word Count**: 
+**Word Count**: 204 
 
 ## Citation
 Pang, B., Lee, L., & Vaithyanathan, S. (2002). Thumbs up? Sentiment classification using machine learning techniques. *Proceedings of the ACL-02 Conference on Empirical Methods in Natural Language Processing*, 79-86.
