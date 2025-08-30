@@ -154,4 +154,13 @@ def text_to_vector(text: str, vocab: Dict[str, int]) -> List[int]:
     # Step 4: Return feature vector
     
     # For now, return empty list until implemented
-    return []
+    vector = [0] * len(vocab)
+    bow = extract_bag_of_words(text)
+
+    for word, count in bow.items():
+        if word in vocab:
+            index = vocab[word]
+            vector[index] = count
+    
+
+    return vector
