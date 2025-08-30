@@ -17,7 +17,7 @@ Instructions:
 """
 
 from typing import Dict, List, Tuple, Set
-import string
+import string, re
 from text_features import extract_bag_of_words, build_vocabulary, text_to_vector
 
 
@@ -58,7 +58,21 @@ def add_ngram_features(texts: List[str], n: int = 2) -> Dict[str, int]:
     # Step 4: Return combined vocabulary
     
     # For now, return empty dictionary until implemented
-    return {}
+    
+    grams = set()
+
+    for text in texts:
+        words = re.findall(r'\b\w+\b', text.lower())
+        length = len(words)
+        for size in range(1, n + 1):
+            for i in range(length - size + 1):
+                ngram = ' '.join(words[i:i + size])
+                grams.add(ngram)
+    
+    sorted_grams = sorted(grams)
+    vocab = {gram: idx for idx, gram in enumerate(sorted_grams)}
+    
+    return vocab
 
 
 def compute_tf_idf_features(texts: List[str], vocab: Dict[str, int]) -> List[List[float]]:
