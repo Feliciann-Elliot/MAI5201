@@ -103,7 +103,15 @@ def build_vocabulary(texts: List[str]) -> Dict[str, int]:
     # Step 5: Return word-to-index dictionary
     
     # For now, return empty dictionary until implemented
-    return {}
+    index_dict = {}
+    
+    for text in texts:
+        index_dict.update(extract_bag_of_words(text))
+    
+    index_dict = sorted(index_dict.keys())
+    index_dict = {word: idx for idx, word in enumerate(index_dict)}
+
+    return index_dict
 
 
 def text_to_vector(text: str, vocab: Dict[str, int]) -> List[int]:
