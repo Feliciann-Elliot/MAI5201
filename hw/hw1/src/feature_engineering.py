@@ -202,8 +202,53 @@ def extract_feature_statistics(texts: List[str]) -> List[Dict[str, float]]:
     # Step 4: Return feature dictionaries
     
     # For now, return empty list until implemented
-    return []
 
+    featureStats = []
+    for text in texts:
+        features = {}
+
+        word_dict = extract_bag_of_words(text)
+        words = list(word_dict.keys())
+        word_counts = word_dict
+
+        total_word_count = sum(word_counts.values())
+
+        char_count = sum(len(word) * word_counts[word] for word in words)
+        
+        clean_words = re.findall(r'\b\w+\b', text.lower())
+        total_word_count = len(clean_words)
+
+        char_count = sum(len(word) for word in clean_words)
+
+        sentence_count = text.count('.') + text.count('!') + text.count('?')
+        if sentence_count == 0:
+            sentence_count = 1  # Avoid division by zero
+        
+        
+        avg_word_length = (char_count / total_word_count) if total_word_count > 0 else 0
+        
+        unique_words = len(set(clean_words))
+        vocab_diversity = (unique_words / total_word_count) if total_word_count > 0 else 0
+        
+        exclamation_count = text.count('!')
+        question_count = text.count('?')
+
+        alphabetic_chars = re.findall(r'[A-Za-z]', text)
+        uppercase_chars = sum(1 for x in text if x.isupper())
+        uppercase_ratio = (uppercase_chars / len(alphabetic_chars)) if alphabetic_chars > 0 else 0
+        
+        features['word_count'] = total_word_count
+        features['char_count'] = char_count
+        features['sentence_count'] = sentence_count
+        features['avg_word_length'] = avg_word_length
+        features['vocab_diversity'] = vocab_diversity
+        features['exclamation_count'] = exclamation_count
+        features['question_count'] = question_count
+        features['uppercase_ratio'] = uppercase_ratio
+        
+        featureStats.append(features)
+    
+    return featureStats
 
 def build_feature_matrix(texts: List[str], feature_config: Dict[str, bool]) -> Tuple[List[List[float]], List[str]]:
     """
