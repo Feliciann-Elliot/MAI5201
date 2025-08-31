@@ -16,6 +16,7 @@ Instructions:
 - Do not modify function signatures
 """
 
+import math
 from typing import Dict, List, Tuple, Set
 import string, re
 from text_features import extract_bag_of_words, build_vocabulary, text_to_vector
@@ -119,8 +120,41 @@ def compute_tf_idf_features(texts: List[str], vocab: Dict[str, int]) -> List[Lis
     # Step 4: Return list of TF-IDF vectors
     
     # For now, return empty list until implemented
-    return []
+    
+    totalDocs = len(texts)
+    if totalDocs == 0 or not vocab:
+        return []
 
+    docWordCounts = []
+    docLengths = []
+
+    for text in texts:
+        word_count = extract_bag_of_words(text)
+        docWordCounts.append(word_count)
+        docLengths.append(sum(word_count.values()))
+    
+    docFreq = {word: 0 for word in vocab}
+    for wordCount in docWordCounts:
+        for word in wordCount:
+            if word in vocab:
+                docFreq[word] += 1
+
+    idfScores = {
+        word: math.log(totalDocs / (docFreq[word] + 1))  # +1 to avoid division by zero
+        for word, freq in docFreq.items()
+    }
+
+    tf_idf_vectors = []
+    for wordCount, length in zip(docWordCounts, docLengths):
+        vector = [0.0] * len(vocab)
+        if length > 0:
+            for word, count in wordCount.items():
+                if word in vocab:
+                    tf = count / length
+                    vector[vocab[word]] = tf * idfScores[word]
+        tf_idf_vectors.append(vector)
+
+    return tf_idf_vectors
 
 def extract_feature_statistics(texts: List[str]) -> List[Dict[str, float]]:
     """
