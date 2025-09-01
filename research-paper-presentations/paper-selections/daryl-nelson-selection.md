@@ -1,8 +1,8 @@
 # Research Paper Presentation Selection Template
 
-**Student Name**: [Your Full Name]
-**Student ID**: [Your ID]
-**Date**: [Submission Date]
+**Student Name**: Daryl Nelson
+**Student ID**: 1021215
+**Date**: 01/09/2025
 
 ## Paper Selections
 
