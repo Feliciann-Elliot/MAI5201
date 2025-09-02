@@ -220,22 +220,19 @@ def extract_feature_statistics(texts: List[str]) -> List[Dict[str, float]]:
 
         char_count = sum(len(word) for word in clean_words)
 
-        sentence_count = text.count('.') + text.count('!') + text.count('?')
-        if sentence_count == 0:
-            sentence_count = 1  # Avoid division by zero
+        sentence_count = text.count('.') + text.count('!') + text.count('?')        
         
-        
-        avg_word_length = (char_count / total_word_count) if total_word_count > 0 else 0
+        avg_word_length = (char_count / total_word_count) if total_word_count else 0
         
         unique_words = len(set(clean_words))
-        vocab_diversity = (unique_words / total_word_count) if total_word_count > 0 else 0
+        vocab_diversity = (unique_words / total_word_count) if total_word_count else 0
         
         exclamation_count = text.count('!')
         question_count = text.count('?')
 
-        alphabetic_chars = re.findall(r'[A-Za-z]', text)
         uppercase_chars = sum(1 for x in text if x.isupper())
-        uppercase_ratio = (uppercase_chars / len(alphabetic_chars)) if alphabetic_chars > 0 else 0
+        den = len(text)
+        uppercase_ratio = (uppercase_chars / den) if den else 0
         
         features['word_count'] = total_word_count
         features['char_count'] = char_count
