@@ -4,7 +4,7 @@
 **Student ID**: 1021215  
 **Assignment**: Paper Summary 5  
 **Date**: 04/09/2025  
-**Word Count**: 262
+**Word Count**: 268
 
 ## Citation
 Mikolov, T., Chen, K., Corrado, G., & Dean, J. (2013). Efficient estimation of word representations in vector space. *arXiv preprint arXiv:1301.3781*.
