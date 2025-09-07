@@ -55,7 +55,18 @@ def extract_bag_of_words(text: str) -> Dict[str, int]:
     # Step 5: Return dictionary
     
     # For now, return empty dictionary until implemented
-    return {}
+    # return text
+    result = {}
+    split_text = text.lower().translate(str.maketrans('', '', string.punctuation)).split()
+
+
+    for word in split_text:
+        if word not in result:
+            result[word] = 1
+        else:
+            result[word] += 1
+
+    return result
 
 
 def build_vocabulary(texts: List[str]) -> Dict[str, int]:
@@ -93,7 +104,24 @@ def build_vocabulary(texts: List[str]) -> Dict[str, int]:
     # Step 5: Return word-to-index dictionary
     
     # For now, return empty dictionary until implemented
-    return {}
+
+    array = []
+    result = {}
+
+    for text in texts:
+        split_text = text.lower().translate(str.maketrans('', '', string.punctuation)).split()
+        for word in split_text:
+            if word not in array:
+                array.append(word)
+
+    array.sort()
+    count = 0
+    for word in array:
+        result[word] = count
+        count+=1
+
+
+    return result
 
 
 def text_to_vector(text: str, vocab: Dict[str, int]) -> List[int]:
@@ -136,4 +164,17 @@ def text_to_vector(text: str, vocab: Dict[str, int]) -> List[int]:
     # Step 4: Return feature vector
     
     # For now, return empty list until implemented
-    return []
+
+    array = [0] * len(vocab)
+    split_text = []
+
+    for word in text:
+        split_text = text.lower().translate(str.maketrans('', '', string.punctuation)).split()
+
+    for key, value in vocab.items():
+        for word in split_text:
+            if word == key:
+                array[value] += 1
+
+
+    return array
