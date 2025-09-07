@@ -58,7 +58,23 @@ def add_ngram_features(texts: List[str], n: int = 2) -> Dict[str, int]:
     # Step 4: Return combined vocabulary
     
     # For now, return empty dictionary until implemented
-    return {}
+    res_dict = {}
+
+    for text in texts:
+
+        split_text = text.lower().translate(str.maketrans('', '', string.punctuation)).split()
+        for key, word in enumerate(split_text):
+            temp_word = word
+            for counter in range(1,n):
+                if key + counter < n:
+                    temp_word += " " + split_text[key + counter]
+                if word not in res_dict:
+                    res_dict.update({word: 0})
+                if temp_word.strip() not in res_dict:
+                    res_dict.update({temp_word: 0})
+
+
+    return {k: i for i, (k, v) in enumerate(sorted(res_dict.items()))}
 
 
 def compute_tf_idf_features(texts: List[str], vocab: Dict[str, int]) -> List[List[float]]:
