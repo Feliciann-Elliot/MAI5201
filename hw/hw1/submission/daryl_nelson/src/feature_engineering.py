@@ -61,20 +61,20 @@ def add_ngram_features(texts: List[str], n: int = 2) -> Dict[str, int]:
     res_dict = {}
 
     for text in texts:
-
         split_text = text.lower().translate(str.maketrans('', '', string.punctuation)).split()
+        L = len(split_text)
         for key, word in enumerate(split_text):
-            temp_word = word
-            for counter in range(1,n):
-                if key + counter < n:
-                    temp_word += " " + split_text[key + counter]
-                if word not in res_dict:
-                    res_dict.update({word: 0})
-                if temp_word.strip() not in res_dict:
-                    res_dict.update({temp_word: 0})
-
+            for size in range(1, n + 1):
+                if key + size <= L:
+                    temp_word = " ".join(split_text[key : key + size])
+                    if temp_word not in res_dict:
+                        res_dict[temp_word] = 0
 
     return {k: i for i, (k, v) in enumerate(sorted(res_dict.items()))}
+
+
+
+
 
 
 def compute_tf_idf_features(texts: List[str], vocab: Dict[str, int]) -> List[List[float]]:
@@ -283,6 +283,71 @@ def build_feature_matrix(texts: List[str], feature_config: Dict[str, bool]) -> T
     # Step 5: Return matrix and names
     
     # For now, return empty results until implemented
-    print(texts)
-    print(feature_config)
-    return [], []
+    feature_matrix = []
+    feature_names = []
+    stats_vectors = []
+    stats_names = [
+        "word_count",
+        "char_count",
+        "sentence_count",
+        "avg_word_length",
+        "vocab_diversity",
+        "exclamation_count",
+        "question_count",
+        "uppercase_ratio"
+    ]
+
+    use_unigrams = feature_config.get("use_unigrams", True)
+    use_bigrams = feature_config.get("use_bigrams", True)
+    use_tfidf = feature_config.get("use_tfidf", True)
+    use_statistics = feature_config.get("use_statistics", True)
+
+    if use_unigrams and use_bigrams:
+        n = 2
+    elif use_bigrams:
+        n = 2
+    elif use_unigrams:
+        n = 1
+    else:
+        n = 0
+
+    vocab = {}
+    if n > 0:
+        vocab = add_ngram_features(texts, n)
+
+    vectors = []
+    if vocab:
+        if use_tfidf:
+            vectors = compute_tf_idf_features(texts, vocab)
+        else:
+            vectors = []
+            for text in texts:
+                vec = [0.0] * len(vocab)
+                words = text.lower().translate(str.maketrans('', '', string.punctuation)).split()
+                if use_unigrams:
+                    for w in words:
+                        if w in vocab:
+                            vec[vocab[w]] += 1
+                if use_bigrams:
+                    for i in range(len(words) - 1):
+                        bg = words[i] + " " + words[i+1]
+                        if bg in vocab:
+                            vec[vocab[bg]] += 1
+                vectors.append(vec)
+
+        feature_names.extend(sorted(vocab, key=lambda k: vocab[k]))
+
+
+    if use_statistics:
+        stats_vectors = extract_feature_statistics(texts)
+
+    for i in range(len(texts)):
+        row = []
+        if vectors:
+            row.extend(vectors[i])
+        if use_statistics:
+            row.extend(stats_vectors[i][name] for name in stats_names)
+        feature_matrix.append(row)
+
+
+    return feature_matrix, feature_names
