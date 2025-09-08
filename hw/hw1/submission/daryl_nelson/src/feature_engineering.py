@@ -15,7 +15,7 @@ Instructions:
 - Run Q2 tests only with: python autograder.py -q q2
 - Do not modify function signatures
 """
-
+import math
 from typing import Dict, List, Tuple, Set
 import string
 from text_features import extract_bag_of_words, build_vocabulary, text_to_vector
@@ -121,7 +121,42 @@ def compute_tf_idf_features(texts: List[str], vocab: Dict[str, int]) -> List[Lis
     # Step 4: Return list of TF-IDF vectors
     
     # For now, return empty list until implemented
-    return []
+
+    tf_array = []
+    total_documents = len(texts)
+    idf = {word: 0 for word in vocab}
+
+    for text in texts:
+        words = text.split()
+        total_words = len(words)
+
+        tf = {}
+        for word in vocab:
+            if total_words > 0:
+                tf[word] = words.count(word) / total_words
+            else:
+                tf[word] = 0.0
+
+        for word in set(words):
+            if word in vocab:
+                idf[word] += 1
+
+        tf_array.append(tf)
+
+    for word in idf:
+        if idf[word] > 0:
+            idf[word] = math.log(total_documents / idf[word])
+        else:
+            idf[word] = 0.0
+
+    tfidf_result = []
+    for tf in tf_array:
+        temp = []
+        for word in vocab:
+            temp.append(tf[word] * idf[word])
+        tfidf_result.append(temp)
+
+    return tfidf_result
 
 
 def extract_feature_statistics(texts: List[str]) -> List[Dict[str, float]]:
@@ -170,7 +205,33 @@ def extract_feature_statistics(texts: List[str]) -> List[Dict[str, float]]:
     # Step 4: Return feature dictionaries
     
     # For now, return empty list until implemented
-    return []
+    features = []
+
+    for text in texts:
+        words = text.split()
+        word_count = len(words)
+        letters_only = [c for c in text if c.isalpha()]
+        char_count = len(letters_only)
+        sentence_count = sum(text.count(sep) for sep in [".", "!", "?"])
+        exclamation_count = text.count("!")
+        question_count = text.count("?")
+        uppercase_count = sum(1 for c in text if c.isupper())
+        avg_word_length = (char_count / word_count) if word_count > 0 else 0.0
+        vocab_diversity = (len(set(words)) / word_count) if word_count > 0 else 0.0
+        uppercase_ratio = (uppercase_count / len(text)) if len(text) > 0 else 0.0
+
+        features.append({
+            "word_count": word_count,
+            "char_count": char_count,
+            "sentence_count": sentence_count,
+            "avg_word_length": avg_word_length,
+            "vocab_diversity": vocab_diversity,
+            "exclamation_count": exclamation_count,
+            "question_count": question_count,
+            "uppercase_ratio": uppercase_ratio,
+        })
+
+    return features
 
 
 def build_feature_matrix(texts: List[str], feature_config: Dict[str, bool]) -> Tuple[List[List[float]], List[str]]:
@@ -222,4 +283,6 @@ def build_feature_matrix(texts: List[str], feature_config: Dict[str, bool]) -> T
     # Step 5: Return matrix and names
     
     # For now, return empty results until implemented
+    print(texts)
+    print(feature_config)
     return [], []
