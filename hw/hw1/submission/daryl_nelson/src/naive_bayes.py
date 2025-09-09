@@ -55,7 +55,18 @@ def calculate_class_priors(labels: List[int]) -> Dict[int, float]:
     # Step 4: Return dictionary mapping class -> probability
     
     # For now, return empty dictionary until implemented
-    return {}
+    total = len(labels)
+    dict = {}
+
+    for label in labels:
+        if label not in dict:
+            dict[label] = 1
+        else:
+            dict[label] += 1
+    for key, value in dict.items():
+        dict[key] = value / total
+
+    return dict
 
 
 def calculate_feature_likelihoods(vectors: List[List[float]], labels: List[int]) -> Dict[int, List[float]]:
@@ -73,7 +84,7 @@ def calculate_feature_likelihoods(vectors: List[List[float]], labels: List[int])
     Returns:
         Dict[int, List[float]]: For each class, list of feature probabilities
                                where each position corresponds to a feature
-    
+
     Formula for Multinomial Naive Bayes:
         P(feature_i | class) = (count of feature_i in class + alpha) / 
                               (total feature count in class + alpha * vocab_size)
@@ -103,7 +114,36 @@ def calculate_feature_likelihoods(vectors: List[List[float]], labels: List[int])
     # Step 5: Return dictionary mapping class -> feature probabilities
     
     # For now, return empty dictionary until implemented
-    return {}
+
+    alpha = 1.0
+    likelihoods = {}
+
+    if not vectors:
+        return {}
+
+    vocab_size = len(vectors[0])
+
+    class_feature_sums: Dict[int, List[float]] = {}
+    class_totals: Dict[int, float] = {}
+
+    for vec, label in zip(vectors, labels):
+        if label not in class_feature_sums:
+            class_feature_sums[label] = [0.0] * vocab_size
+            class_totals[label] = 0.0
+
+        for i, val in enumerate(vec):
+            class_feature_sums[label][i] += val
+            class_totals[label] += val
+
+    for label in class_feature_sums:
+        probs = []
+        total_count = class_totals[label]
+        for count in class_feature_sums[label]:
+            prob = (count + alpha) / (total_count + alpha * vocab_size)
+            probs.append(prob)
+        likelihoods[label] = probs
+
+    return likelihoods
 
 
 def naive_bayes_predict(vector: List[float], priors: Dict[int, float], 
@@ -152,6 +192,22 @@ def naive_bayes_predict(vector: List[float], priors: Dict[int, float],
     # Step 5: Return (predicted_class, all_probabilities)
     
     # For now, return dummy values until implemented
+
+    log_probs = {}
+    for label, prior in priors.items():
+        log_prob = math.log(prior)
+        for i, count in enumerate(vector):
+            if count > 0:
+                log_prob += count * math.log(likelihoods[label][i])
+        log_probs[label] = log_prob
+
+    if log_probs:
+        max_log = max(log_probs.values())
+        exp_probs = {label: math.exp(lp - max_log) for label, lp in log_probs.items()}
+        total = sum(exp_probs.values())
+        probs = {label: val / total for label, val in exp_probs.items()}
+        predicted_class = max(probs, key=probs.get)
+        return predicted_class, probs
     return 0, {}
 
 
