@@ -35,7 +35,16 @@ def sigmoid(z):
     """
     # TODO: Implement sigmoid function
     # Hint: Use np.exp() and handle potential overflow with np.clip()
-    return 0.0
+
+    z_np_array = np.array(z, dtype=np.float64)
+
+    z_np_array = np.clip(z_np_array, -500, 500)
+
+    sigmoid_arr = 1 / (1 + np.exp(-z_np_array))
+
+    if np.isscalar(z):
+        return float(sigmoid_arr)
+    return sigmoid_arr
 
 
 def cross_entropy_loss(y_true, y_pred):
@@ -65,7 +74,16 @@ def cross_entropy_loss(y_true, y_pred):
     # - Use np.log() for logarithm
     # - Add small epsilon (1e-15) to prevent log(0)
     # - Return the mean loss across all samples
-    return 0.0
+    y_true = np.array(y_true, dtype=np.float64)
+    y_pred = np.array(y_pred, dtype=np.float64)
+
+
+    epsilon = 1e-15
+    y_pred = np.clip(y_pred, epsilon, 1 - epsilon)
+
+    loss = - (y_true * np.log(y_pred) + (1 - y_true) * np.log(1 - y_pred))
+
+    return float(np.mean(loss))
 
 
 def compute_gradients(X, y, weights):
@@ -100,7 +118,23 @@ def compute_gradients(X, y, weights):
     # 3. Compute error = predictions - y_true
     # 4. Compute gradients = X.T @ error / n_samples
     # 5. Return gradients as numpy array
-    return np.array([])
+    X = np.array(X, dtype=np.float64)
+    y = np.array(y, dtype=np.float64)
+
+    if X.size == 0 or y.size == 0:
+        return np.zeros_like(weights)
+
+    weights = np.array(weights, dtype=np.float64)
+
+    z = X @ weights
+    predictions = sigmoid(z)
+
+    error = predictions - y
+
+    n_samples = X.shape[0]
+    gradients = (X.T @ error) / n_samples
+
+    return gradients
 
 
 def sgd_step(weights, gradients, learning_rate):
@@ -133,7 +167,11 @@ def sgd_step(weights, gradients, learning_rate):
     # 1. Convert inputs to numpy arrays
     # 2. Apply the SGD update formula
     # 3. Return updated weights as numpy array
-    return np.array([])
+    weights = np.array(weights, dtype=np.float64)
+    gradients = np.array(gradients, dtype=np.float64)
+    updated_weights = weights - learning_rate * gradients
+
+    return updated_weights
 
 
 def train_logistic_regression(X, y, learning_rate=0.01, epochs=100):
@@ -167,7 +205,21 @@ def train_logistic_regression(X, y, learning_rate=0.01, epochs=100):
     #    - Compute gradients using compute_gradients()
     #    - Update weights using sgd_step()
     # 4. Return final weights
-    return np.array([])
+
+    X = np.array(X, dtype=np.float64)
+    y = np.array(y, dtype=np.float64)
+
+    if X.size == 0 or y.size == 0:
+        return np.zeros(X.shape[1] if X.ndim > 1 else 0)
+
+    n_features = X.shape[1]
+    weights = np.zeros(n_features, dtype=np.float64)
+
+    for epoch in range(epochs):
+        gradients = compute_gradients(X, y, weights)
+        weights = sgd_step(weights, gradients, learning_rate)
+
+    return weights
 
 
 def logistic_predict(X, weights, threshold=0.5):
@@ -201,7 +253,17 @@ def logistic_predict(X, weights, threshold=0.5):
     # 3. Compute probabilities using sigmoid(z)
     # 4. Apply threshold: predictions = probabilities >= threshold
     # 5. Convert to lists and return both predictions and probabilities
-    return ([], [])
+    X = np.array(X, dtype=np.float64)
+    weights = np.array(weights, dtype=np.float64)
+
+    if X.size == 0 or weights.size == 0:
+        return [], []
+
+    z = X @ weights
+    probabilities = sigmoid(z)
+    predictions = (probabilities >= threshold).astype(int)
+
+    return predictions.tolist(), probabilities.tolist()
 
 
 def calculate_accuracy(y_true, y_pred):
