@@ -7,7 +7,7 @@
 **Word Count**: 289
 
 ## Citation
-effrey Pennington, Richard Socher, and Christopher Manning. 2014.
+Jeffrey Pennington, Richard Socher, Christopher D. Manning. 2014.
 
 ## Summary
 
