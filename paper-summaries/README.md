@@ -142,6 +142,18 @@ git push origin paper-summary-1-[your-name]
 - **Due Date**: September 4, 2025 @ 11:59 PM (GYD)
 - **Submission Directory**: `paper-summaries/assignment-5/`
 
+### Assignment 6: GloVe Word Representations (2014)
+- **Paper**: "GloVe: Global Vectors for Word Representation" by Jeffrey Pennington, Richard Socher, Christopher D. Manning
+- **URL**: https://aclanthology.org/D14-1162/
+- **Due Date**: September 11, 2025 @ 11:59 PM (GYD)
+- **Submission Directory**: `paper-summaries/assignment-6/`
+
+### Assignment 7: Long Short-Term Memory Networks (1997)
+- **Paper**: "Long Short-Term Memory" by Sepp Hochreiter, Jürgen Schmidhuber
+- **URL**: https://deeplearning.cs.cmu.edu/S23/document/readings/LSTM.pdf
+- **Due Date**: September 18, 2025 @ 11:59 PM (GYD)
+- **Submission Directory**: `paper-summaries/assignment-7/`
+
 ---
 
 *For questions about assignments or technical issues with Git/GitHub, please email Dr. Clarke at christopher.clarke@uog.edu.gy or create an issue in the course repository.*
