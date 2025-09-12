@@ -103,13 +103,13 @@ class MovieReviewClassifier:
         # TODO: Implement train/test split using sklearn.model_selection.train_test_split
         # Store results in self.texts_train, self.texts_test, self.y_train, self.y_test
         # Use self.random_state for reproducibility
-        
-        # Placeholder implementation
-        split_idx = int(len(texts) * (1 - test_size))
-        self.texts_train = texts[:split_idx]
-        self.texts_test = texts[split_idx:]
-        self.y_train = labels[:split_idx]
-        self.y_test = labels[split_idx:]
+        self.texts_train, self.texts_test, self.y_train, self.y_test = train_test_split(
+            texts,
+            labels,
+            test_size=test_size,
+            random_state=self.random_state,
+            stratify=labels
+        )
         
         print(f"Data split: {len(self.texts_train)} train, {len(self.texts_test)} test samples")
     
@@ -127,20 +127,18 @@ class MovieReviewClassifier:
             # 1. Initialize CountVectorizer with appropriate parameters
             # 2. Fit on training texts and transform both train/test
             # 3. Store results in self.X_train, self.X_test
-            
-            # Placeholder
-            self.count_vectorizer = CountVectorizer()
-            pass
+            self.count_vectorizer = CountVectorizer(stop_words="english")
+            self.X_train = self.count_vectorizer.fit_transform(self.texts_train)
+            self.X_test = self.count_vectorizer.transform(self.texts_test)
             
         elif feature_type == 'tfidf':
             # TODO: Implement TF-IDF feature extraction
             # 1. Initialize TfidfVectorizer with appropriate parameters
             # 2. Fit on training texts and transform both train/test  
             # 3. Store results in self.X_train, self.X_test
-            
-            # Placeholder
-            self.tfidf_vectorizer = TfidfVectorizer()
-            pass
+            self.tfidf_vectorizer = TfidfVectorizer(stop_words="english")
+            self.X_train = self.tfidf_vectorizer.fit_transform(self.texts_train)
+            self.X_test = self.tfidf_vectorizer.transform(self.texts_test)
             
         else:
             raise ValueError(f"Unknown feature type: {feature_type}")
@@ -158,8 +156,8 @@ class MovieReviewClassifier:
         # 3. Store trained model in self.nb_model
         
         self.nb_model = MultinomialNB()
-        # self.nb_model.fit(self.X_train, self.y_train)
-    
+        self.nb_model.fit(self.X_train, self.y_train)
+
     def train_logistic_regression(self) -> None:
         """
         Train a Logistic Regression classifier using scikit-learn.
@@ -171,9 +169,10 @@ class MovieReviewClassifier:
         # 2. Consider using max_iter parameter for convergence
         # 3. Fit on self.X_train and self.y_train
         # 4. Store trained model in self.lr_model
-        
-        self.lr_model = LogisticRegression(random_state=self.random_state)
-        # self.lr_model.fit(self.X_train, self.y_train)
+
+        self.lr_model = LogisticRegression(random_state=self.random_state, max_iter = 1000)
+        self.lr_model.fit(self.X_train, self.y_train)
+
     
     def evaluate_model(self, model, model_name: str) -> Dict[str, float]:
         """
@@ -191,22 +190,20 @@ class MovieReviewClassifier:
         # 2. Calculate accuracy using accuracy_score
         # 3. Calculate precision, recall, F1 using precision_recall_fscore_support
         # 4. Return metrics dictionary
-        
-        # Placeholder implementation
-        predictions = [0] * len(self.y_test)  # Dummy predictions
-        
+
+        predictions = model.predict(self.X_test)
+
         accuracy = accuracy_score(self.y_test, predictions)
         precision, recall, f1, _ = precision_recall_fscore_support(
             self.y_test, predictions, average='binary'
         )
-        
+
         metrics = {
             'accuracy': accuracy,
             'precision': precision,
             'recall': recall,
             'f1': f1
         }
-        
         self.results[model_name] = metrics
         return metrics
     
