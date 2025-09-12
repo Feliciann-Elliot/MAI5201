@@ -248,7 +248,33 @@ def train_naive_bayes(vectors: List[List[float]], labels: List[int]) -> Tuple[Di
     # Step 4: Return both components
     
     # For now, return empty results until implemented
-    return {}, {}
+    if len(vectors) != len(labels):
+        return {}, {}
+
+    if len(vectors) == 0:
+        return {}, {}
+
+    num_samples = len(vectors)
+    num_features = len(vectors[0])
+
+    label_counts = Counter(labels)
+    priors = {c: label_counts[c] / num_samples for c in label_counts}
+
+    likelihoods = {}
+    for c in label_counts:
+        feature_counts = [1.0] * num_features
+        total_count = num_features
+
+        for i, label in enumerate(labels):
+            if label == c:
+                for j, val in enumerate(vectors[i]):
+                    feature_counts[j] += val
+                    total_count += val
+
+        likelihoods[c] = [count / total_count for count in feature_counts]
+
+    return priors, likelihoods
+
 
 
 def evaluate_naive_bayes(vectors: List[List[float]], labels: List[int], 
@@ -280,4 +306,32 @@ def evaluate_naive_bayes(vectors: List[List[float]], labels: List[int],
     # Step 3: Return metrics dictionary
     
     # For now, return dummy metrics until implemented
-    return {'accuracy': 0.0, 'precision': 0.0, 'recall': 0.0, 'f1': 0.0}
+    if len(vectors) != len(labels):
+        return {'accuracy': 0.0, 'precision': 0.0, 'recall': 0.0, 'f1': 0.0}
+
+    predictions = [naive_bayes_predict(v, priors, likelihoods) for v in vectors]
+
+    tp = fp = tn = fn = 0
+    for pred, true in zip(predictions, labels):
+        if pred == 1 and true == 1:
+            tp += 1
+        elif pred == 1 and true == 0:
+            fp += 1
+        elif pred == 0 and true == 0:
+            tn += 1
+        elif pred == 0 and true == 1:
+            fn += 1
+
+    total = len(labels)
+    accuracy = (tp + tn) / total if total > 0 else 0.0
+    precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
+    recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
+    f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0.0
+
+    return {
+        'accuracy': accuracy,
+        'precision': precision,
+        'recall': recall,
+        'f1': f1
+    }
+
