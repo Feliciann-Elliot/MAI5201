@@ -294,7 +294,20 @@ def calculate_accuracy(y_true, y_pred):
     # 2. Count correct predictions: sum(y_true == y_pred)
     # 3. Divide by total predictions: len(y_true)
     # 4. Handle empty inputs
-    return 0.0
+
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
+
+    if y_true.size == 0 or y_pred.size == 0:
+        return 0.0
+
+    if y_true.shape[0] != y_pred.shape[0]:
+        return 0.0
+
+    correct = np.sum(y_true == y_pred)
+    total = len(y_true)
+
+    return correct / total
 
 
 def calculate_precision_recall(y_true, y_pred):
@@ -330,7 +343,21 @@ def calculate_precision_recall(y_true, y_pred):
     # 4. Calculate False Negatives: sum((y_true == 1) & (y_pred == 0))
     # 5. Calculate precision and recall using formulas
     # 6. Handle edge cases (division by zero)
-    return (0.0, 0.0)
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
+
+
+    if y_true.shape[0] != y_pred.shape[0]:
+        return (0.0, 0.0)
+
+    tp = np.sum((y_true == 1) & (y_pred == 1))
+    fp = np.sum((y_true == 0) & (y_pred == 1))
+    fn = np.sum((y_true == 1) & (y_pred == 0))
+
+    precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
+    recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
+
+    return precision, recall
 
 
 def confusion_matrix(y_true, y_pred):
@@ -371,7 +398,19 @@ def confusion_matrix(y_true, y_pred):
     #    - FN = sum((y_true == 1) & (y_pred == 0))
     #    - TP = sum((y_true == 1) & (y_pred == 1))
     # 3. Return as dictionary
-    return {'TN': 0, 'FP': 0, 'FN': 0, 'TP': 0}
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
+
+    if y_true.shape[0] != y_pred.shape[0]:
+        return {'TN': 0, 'FP': 0, 'FN': 0, 'TP': 0}
+
+    tn = np.sum((y_true == 0) & (y_pred == 0))
+    fp = np.sum((y_true == 0) & (y_pred == 1))
+    fn = np.sum((y_true == 1) & (y_pred == 0))
+    tp = np.sum((y_true == 1) & (y_pred == 1))
+
+    return {"TN": int(tn), "FP": int(fp), "FN": int(fn), "TP": int(tp)}
+
 
 
 def compare_models(nb_preds, lr_preds, y_true):
@@ -410,10 +449,32 @@ def compare_models(nb_preds, lr_preds, y_true):
     # 2. Calculate accuracy, precision, recall for Logistic Regression
     # 3. Determine winner for each metric
     # 4. Return structured comparison dictionary
+
+    nb_accuracy = calculate_accuracy(y_true, nb_preds)
+    nb_precision, nb_recall = calculate_precision_recall(y_true, nb_preds)
+
+    lr_accuracy = calculate_accuracy(y_true, lr_preds)
+    lr_precision, lr_recall = calculate_precision_recall(y_true, lr_preds)
+
+    winner = {
+        "accuracy": "tie" if np.isclose(nb_accuracy, lr_accuracy) else ("nb" if nb_accuracy > lr_accuracy else "lr"),
+        "precision": "tie" if np.isclose(nb_precision, lr_precision) else (
+            "nb" if nb_precision > lr_precision else "lr"),
+        "recall": "tie" if np.isclose(nb_recall, lr_recall) else ("nb" if nb_recall > lr_recall else "lr"),
+    }
+
     return {
-        'naive_bayes': {'accuracy': 0.0, 'precision': 0.0, 'recall': 0.0},
-        'logistic_regression': {'accuracy': 0.0, 'precision': 0.0, 'recall': 0.0},
-        'winner': {'accuracy': 'tie', 'precision': 'tie', 'recall': 'tie'}
+        "naive_bayes": {
+            "accuracy": nb_accuracy,
+            "precision": nb_precision,
+            "recall": nb_recall,
+        },
+        "logistic_regression": {
+            "accuracy": lr_accuracy,
+            "precision": lr_precision,
+            "recall": lr_recall,
+        },
+        "winner": winner,
     }
 
 
@@ -457,13 +518,42 @@ def analyze_errors(texts, y_true, y_pred):
     # 2. Separate into false positives and false negatives
     # 3. Calculate error statistics (length analysis, etc.)
     # 4. Return structured analysis
-    return {
-        'total_errors': 0,
-        'error_rate': 0.0,
-        'false_positives': [],
-        'false_negatives': [],
-        'error_stats': {
-            'avg_length_errors': 0.0,
-            'avg_length_correct': 0.0
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
+
+    if y_true.shape[0] != y_pred.shape[0] or len(texts) != y_true.shape[0]:
+        return {
+            'total_errors': 0,
+            'error_rate': 0.0,
+            'false_positives': [],
+            'false_negatives': [],
+            'error_stats': {
+                'avg_length_errors': 0.0,
+                'avg_length_correct': 0.0
+            }
         }
+
+    errors = np.where(y_true != y_pred)[0]
+
+    false_positives = [texts[i] for i in errors if y_true[i] == 0 and y_pred[i] == 1]
+    false_negatives = [texts[i] for i in errors if y_true[i] == 1 and y_pred[i] == 0]
+
+    total_errors = len(errors)
+    error_rate = total_errors / len(y_true) if len(y_true) > 0 else 0.0
+
+    error_lengths = [len(texts[i].split()) for i in errors]
+    correct_lengths = [len(texts[i].split()) for i in range(len(y_true)) if y_true[i] == y_pred[i]]
+
+    avg_length_errors = np.mean(error_lengths) if error_lengths else 0.0
+    avg_length_correct = np.mean(correct_lengths) if correct_lengths else 0.0
+
+    return {
+        "total_errors": total_errors,
+        "error_rate": error_rate,
+        "false_positives": false_positives,
+        "false_negatives": false_negatives,
+        "error_stats": {
+            "avg_length_errors": avg_length_errors,
+            "avg_length_correct": avg_length_correct,
+        },
     }
