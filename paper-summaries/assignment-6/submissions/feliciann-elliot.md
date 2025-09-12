@@ -4,7 +4,7 @@
 **Student ID**: 1022055
 **Assignment**: Paper Summary 6  
 **Date**: September 11, 2025  
-**Word Count**: 229
+**Word Count**: 263
 
 ## Citation
 Pennington, J., Socher, R., & Manning, C. D. (2014). GloVe: Global vectors for word representation. Proceedings of the 2014 Conference on Empirical Methods in Natural Language Processing (EMNLP), 1532–1543.
