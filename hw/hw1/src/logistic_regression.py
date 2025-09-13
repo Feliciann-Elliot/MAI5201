@@ -72,7 +72,18 @@ def cross_entropy_loss(y_true, y_pred):
     # - Use np.log() for logarithm
     # - Add small epsilon (1e-15) to prevent log(0)
     # - Return the mean loss across all samples
-    return 0.0
+
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
+
+    if y_true.shape != y_true.shape:
+        raise ValueError("Shapes of y_true and y_pred must match.")
+    
+    epsilon = 1e-15
+    y_pred = np.clip(y_pred, epsilon, 1 - epsilon)
+
+    individual_losses = - (y_true * np.log(y_pred) + (1 - y_true) * np.log(1 - y_pred))
+    return float(np.mean(individual_losses))
 
 
 def compute_gradients(X, y, weights):
