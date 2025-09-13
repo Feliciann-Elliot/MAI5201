@@ -204,7 +204,25 @@ def train_logistic_regression(X, y, learning_rate=0.01, epochs=100):
     #    - Compute gradients using compute_gradients()
     #    - Update weights using sgd_step()
     # 4. Return final weights
-    return np.array([])
+
+    X = np.array(X)
+    y = np.array(y)
+
+    if X.size == 0 or y.size == 0:
+        return np.array([])
+    
+    n_features = X.shape[1]
+    weights = np.zeros(n_features)
+    
+    for epoch in range(epochs):
+        try:
+            gradients = compute_gradients(X, y, weights)
+            weights = sgd_step(weights, gradients, learning_rate)
+        except Exception as e:
+            print(f"Error during training at epoch {epoch}: {e}")
+            break
+
+    return weights
 
 
 def logistic_predict(X, weights, threshold=0.5):
