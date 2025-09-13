@@ -55,7 +55,23 @@ def calculate_class_priors(labels: List[int]) -> Dict[int, float]:
     # Step 4: Return dictionary mapping class -> probability
     
     # For now, return empty dictionary until implemented
-    return {}
+    if not labels:
+        return {}
+    
+    class_counts = {}
+    for label in labels:
+        if label in class_counts:
+            class_counts[label] += 1
+        else:
+            class_counts[label] = 1
+    
+    total_count = len(labels)
+    priors = {}
+
+    for class_label, count in class_counts.items():
+        priors[class_label] = count / total_count
+    
+    return priors
 
 
 def calculate_feature_likelihoods(vectors: List[List[float]], labels: List[int]) -> Dict[int, List[float]]:
