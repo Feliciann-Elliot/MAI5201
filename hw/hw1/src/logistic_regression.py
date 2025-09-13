@@ -256,7 +256,23 @@ def logistic_predict(X, weights, threshold=0.5):
     # 3. Compute probabilities using sigmoid(z)
     # 4. Apply threshold: predictions = probabilities >= threshold
     # 5. Convert to lists and return both predictions and probabilities
-    return ([], [])
+        # Handle empty input cases
+    if not X or not weights:
+        return ([], [])
+    
+    X = np.array(X)
+    weights = np.array(weights)
+    
+    if X.size == 0 or weights.size == 0:
+        return ([], [])
+    
+    z = X @ weights
+    
+    probabilities = sigmoid(z)
+    
+    predictions = (probabilities >= threshold).astype(int)
+    
+    return (predictions.tolist(), probabilities.tolist())
 
 
 def calculate_accuracy(y_true, y_pred):
