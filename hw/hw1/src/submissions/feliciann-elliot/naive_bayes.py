@@ -3,9 +3,9 @@ MAI 5201 - Homework 1: Machine Learning for NLP
 Part 1: From Scratch Implementation
 Q3: Naive Bayes from Scratch (8 pts)
 
-Student Name: [Your Name Here]
-Student ID: [Your ID Here]
-Date: [Date]
+Student Name: Feliciann Elliot
+Student ID: 1022055
+Date: September 12, 2025
 
 Instructions:
 - Implement Naive Bayes classifier using only basic Python and math operations
@@ -55,7 +55,23 @@ def calculate_class_priors(labels: List[int]) -> Dict[int, float]:
     # Step 4: Return dictionary mapping class -> probability
     
     # For now, return empty dictionary until implemented
-    return {}
+    if not labels:
+        return {}
+    
+    class_counts = {}
+    for label in labels:
+        if label in class_counts:
+            class_counts[label] += 1
+        else:
+            class_counts[label] = 1
+    
+    total_count = len(labels)
+    priors = {}
+
+    for class_label, count in class_counts.items():
+        priors[class_label] = count / total_count
+    
+    return priors
 
 
 def calculate_feature_likelihoods(vectors: List[List[float]], labels: List[int]) -> Dict[int, List[float]]:
@@ -103,7 +119,43 @@ def calculate_feature_likelihoods(vectors: List[List[float]], labels: List[int])
     # Step 5: Return dictionary mapping class -> feature probabilities
     
     # For now, return empty dictionary until implemented
-    return {}
+    if not vectors or not labels or len(vectors) != len(labels):
+        return {}
+    
+    class_vectors = {}
+    num_features = len(vectors[0]) if vectors else 0
+
+    unique_classes = set(labels)
+    for label in unique_classes:
+        class_vectors[label] = []
+
+    for vector, label in zip(vectors, labels):
+        class_vectors[label].append(vector)
+
+    feature_likelihoods = {}
+
+    for class_label, class_docs in class_vectors.items():
+        if not class_docs:
+            feature_likelihoods[class_label] = [0.0] * num_features
+            continue
+
+        feature_sum = [0.0] * num_features
+        for vector in class_docs:
+            for i in range(num_features):
+                feature_sum[i] += vector[i]
+        
+        alpha = 1.0
+        smoooth_sums = [count + alpha for count in feature_sum]
+
+        total_count = sum(smoooth_sums)
+
+        if total_count > 0:
+            probabilities = [count / total_count for count in smoooth_sums]
+        else:
+            probabilities = [1.0 / num_features if num_features > 0 else 0.0] * num_features
+        
+        feature_likelihoods[class_label] = probabilities
+    return feature_likelihoods
 
 
 def naive_bayes_predict(vector: List[float], priors: Dict[int, float], 
@@ -151,8 +203,70 @@ def naive_bayes_predict(vector: List[float], priors: Dict[int, float],
     # Step 4: Find class with highest probability
     # Step 5: Return (predicted_class, all_probabilities)
     
-    # For now, return dummy values until implemented
-    return 0, {}
+    if not vector or not priors or not likelihoods:
+        return 0, {}
+    
+    # Step 1: For each class, calculate log-probability
+    # log P(class|features) = log P(class) + Σ count_i * log P(feature_i|class)
+    log_probabilities = {}
+    
+    for class_label in priors:
+        if class_label not in likelihoods:
+            continue
+            
+        if priors[class_label] > 0:
+            log_prob = math.log(priors[class_label])
+        else:
+            log_prob = float('-inf')  # Log of zero is negative infinity
+        
+        class_likelihoods = likelihoods[class_label]
+        
+        min_length = min(len(vector), len(class_likelihoods))
+        
+        for i in range(min_length):
+            feature_value = vector[i]
+            feature_prob = class_likelihoods[i]
+            
+            if feature_value > 0 and feature_prob > 0:
+                log_prob += feature_value * math.log(feature_prob)
+            elif feature_value > 0 and feature_prob == 0:
+                log_prob = float('-inf')
+                break
+        
+        log_probabilities[class_label] = log_prob
+    
+    # Step 2: Convert log-probabilities back to regular probabilities
+    # First, find the maximum log probability to prevent overflow
+    if not log_probabilities:
+        return 0, {}
+    
+    max_log_prob = max(log_probabilities.values())
+    
+    unnormalized_probs = {}
+    for class_label, log_prob in log_probabilities.items():
+        if log_prob == float('-inf'):
+            unnormalized_probs[class_label] = 0.0
+        else:
+            unnormalized_probs[class_label] = math.exp(log_prob - max_log_prob)
+    
+    # Step 3: Normalize probabilities to sum to 1.0
+    total_prob = sum(unnormalized_probs.values())
+    
+    if total_prob > 0:
+        normalized_probs = {class_label: prob / total_prob 
+                          for class_label, prob in unnormalized_probs.items()}
+    else:
+        num_classes = len(unnormalized_probs)
+        normalized_probs = {class_label: 1.0 / num_classes 
+                          for class_label in unnormalized_probs}
+    
+    # Step 4: Find class with highest probability
+    if normalized_probs:
+        predicted_class = max(normalized_probs, key=normalized_probs.get)
+    else:
+        predicted_class = 0
+    
+    return predicted_class, normalized_probs
 
 
 def train_naive_bayes(vectors: List[List[float]], labels: List[int]) -> Tuple[Dict[int, float], Dict[int, List[float]]]:

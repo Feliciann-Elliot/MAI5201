@@ -3,9 +3,9 @@ MAI 5201 - Homework 1: Machine Learning for NLP
 Part 1: From Scratch Implementation
 Q1: Text Feature Extraction (6 pts)
 
-Student Name: [Your Name Here]
-Student ID: [Your ID Here]
-Date: [Date]
+Student Name: Feliciann Elliot
+Student ID: 1022055
+Date: September 12, 2025
 
 Instructions:
 - Implement the three functions below for text feature extraction
@@ -16,6 +16,8 @@ Instructions:
 """
 
 from typing import Dict, List
+import re
+from collections import defaultdict
 import string
 
 
@@ -55,7 +57,15 @@ def extract_bag_of_words(text: str) -> Dict[str, int]:
     # Step 5: Return dictionary
     
     # For now, return empty dictionary until implemented
-    return {}
+    sentence = text.lower()
+    words = re.findall(r'\b\w+\b', sentence)
+
+    vocab = defaultdict(int)        
+    for word in words:
+        vocab[word] += 1
+    sorted_vocab = dict(sorted(vocab.items()))
+    
+    return sorted_vocab
 
 
 def build_vocabulary(texts: List[str]) -> Dict[str, int]:
@@ -93,7 +103,15 @@ def build_vocabulary(texts: List[str]) -> Dict[str, int]:
     # Step 5: Return word-to-index dictionary
     
     # For now, return empty dictionary until implemented
-    return {}
+    index_dict = {}
+    
+    for text in texts:
+        index_dict.update(extract_bag_of_words(text))
+    
+    index_dict = sorted(index_dict.keys())
+    index_dict = {word: idx for idx, word in enumerate(index_dict)}
+
+    return index_dict
 
 
 def text_to_vector(text: str, vocab: Dict[str, int]) -> List[int]:
@@ -136,4 +154,13 @@ def text_to_vector(text: str, vocab: Dict[str, int]) -> List[int]:
     # Step 4: Return feature vector
     
     # For now, return empty list until implemented
-    return []
+    vector = [0] * len(vocab)
+    bow = extract_bag_of_words(text)
+
+    for word, count in bow.items():
+        if word in vocab:
+            index = vocab[word]
+            vector[index] = count
+    
+
+    return vector

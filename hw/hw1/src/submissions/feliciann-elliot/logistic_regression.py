@@ -5,7 +5,7 @@ Logistic Regression Core Functions
 Implement the fundamental components of logistic regression:
 sigmoid activation, cross-entropy loss, and gradient computation.
 
-Your Name: [Your Name Here]
+Your Name: Feliciann Elliot
 """
 
 import numpy as np
@@ -35,8 +35,15 @@ def sigmoid(z):
     """
     # TODO: Implement sigmoid function
     # Hint: Use np.exp() and handle potential overflow with np.clip()
-    return 0.0
+    z = np.array(z)
 
+    z_clip = np.clip(z, -500, 500) 
+    sigmoid_values = 1 / (1 + np.exp(-z_clip))
+
+    if np.isscalar(z):
+        return float(sigmoid_values)
+    else:
+        return sigmoid_values.tolist() if not isinstance(z, np.ndarray) else sigmoid_values
 
 def cross_entropy_loss(y_true, y_pred):
     """
@@ -65,7 +72,18 @@ def cross_entropy_loss(y_true, y_pred):
     # - Use np.log() for logarithm
     # - Add small epsilon (1e-15) to prevent log(0)
     # - Return the mean loss across all samples
-    return 0.0
+
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
+
+    if y_true.shape != y_true.shape:
+        raise ValueError("Shapes of y_true and y_pred must match.")
+    
+    epsilon = 1e-15
+    y_pred = np.clip(y_pred, epsilon, 1 - epsilon)
+
+    individual_losses = - (y_true * np.log(y_pred) + (1 - y_true) * np.log(1 - y_pred))
+    return float(np.mean(individual_losses))
 
 
 def compute_gradients(X, y, weights):
@@ -100,7 +118,21 @@ def compute_gradients(X, y, weights):
     # 3. Compute error = predictions - y_true
     # 4. Compute gradients = X.T @ error / n_samples
     # 5. Return gradients as numpy array
-    return np.array([])
+
+    X = np.array(X)
+    y = np.array(y)
+    weights = np.array(weights)
+
+    if X.size == 0 or y.size == 0 or weights.size == 0:
+        return np.zeros_like(weights)
+
+    samples = X.shape[0]
+    linear_output = np.dot(X, weights)
+    predictions = 1 / (1 + np.exp(-linear_output))
+    
+    errors = predictions - y
+    gradients = np.dot(X.T, errors) / samples
+    return gradients
 
 
 def sgd_step(weights, gradients, learning_rate):
@@ -133,7 +165,12 @@ def sgd_step(weights, gradients, learning_rate):
     # 1. Convert inputs to numpy arrays
     # 2. Apply the SGD update formula
     # 3. Return updated weights as numpy array
-    return np.array([])
+    
+    weights = np.array(weights)
+    gradients = np.array(gradients)
+
+    updated_weights = weights - learning_rate * gradients
+    return updated_weights
 
 
 def train_logistic_regression(X, y, learning_rate=0.01, epochs=100):
@@ -167,7 +204,25 @@ def train_logistic_regression(X, y, learning_rate=0.01, epochs=100):
     #    - Compute gradients using compute_gradients()
     #    - Update weights using sgd_step()
     # 4. Return final weights
-    return np.array([])
+
+    X = np.array(X)
+    y = np.array(y)
+
+    if X.size == 0 or y.size == 0:
+        return np.array([])
+    
+    n_features = X.shape[1]
+    weights = np.zeros(n_features)
+    
+    for epoch in range(epochs):
+        try:
+            gradients = compute_gradients(X, y, weights)
+            weights = sgd_step(weights, gradients, learning_rate)
+        except Exception as e:
+            print(f"Error during training at epoch {epoch}: {e}")
+            break
+
+    return weights
 
 
 def logistic_predict(X, weights, threshold=0.5):
@@ -201,7 +256,23 @@ def logistic_predict(X, weights, threshold=0.5):
     # 3. Compute probabilities using sigmoid(z)
     # 4. Apply threshold: predictions = probabilities >= threshold
     # 5. Convert to lists and return both predictions and probabilities
-    return ([], [])
+        # Handle empty input cases
+    if not X or not weights:
+        return ([], [])
+    
+    X = np.array(X)
+    weights = np.array(weights)
+    
+    if X.size == 0 or weights.size == 0:
+        return ([], [])
+    
+    z = X @ weights
+    
+    probabilities = sigmoid(z)
+    
+    predictions = (probabilities >= threshold).astype(int)
+    
+    return (predictions.tolist(), probabilities.tolist())
 
 
 def calculate_accuracy(y_true, y_pred):
@@ -232,7 +303,17 @@ def calculate_accuracy(y_true, y_pred):
     # 2. Count correct predictions: sum(y_true == y_pred)
     # 3. Divide by total predictions: len(y_true)
     # 4. Handle empty inputs
-    return 0.0
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
+
+    if len(y_true) == 0:
+        return 0.0
+    
+    correct_predictions = np.sum(y_true == y_pred)
+    total_predictions = len(y_true)
+    accuracy = correct_predictions / total_predictions
+
+    return float(accuracy)
 
 
 def calculate_precision_recall(y_true, y_pred):
@@ -268,7 +349,28 @@ def calculate_precision_recall(y_true, y_pred):
     # 4. Calculate False Negatives: sum((y_true == 1) & (y_pred == 0))
     # 5. Calculate precision and recall using formulas
     # 6. Handle edge cases (division by zero)
-    return (0.0, 0.0)
+
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
+
+    if len(y_true) == 0:
+        return (0.0, 0.0)
+    
+    TP = np.sum((y_true == 1) & (y_pred == 1))
+    FP = np.sum((y_true == 0) & (y_pred == 1))
+    FN = np.sum((y_true == 1) & (y_pred == 0))
+
+    if TP + FP > 0:
+        precision = TP / (TP + FP)
+    else:
+        precision = 0.0
+
+    if TP + FN > 0:
+        recall = TP / (TP + FN)
+    else:
+        recall = 0.0
+    
+    return float(precision), float(recall)
 
 
 def confusion_matrix(y_true, y_pred):
@@ -309,7 +411,32 @@ def confusion_matrix(y_true, y_pred):
     #    - FN = sum((y_true == 1) & (y_pred == 0))
     #    - TP = sum((y_true == 1) & (y_pred == 1))
     # 3. Return as dictionary
-    return {'TN': 0, 'FP': 0, 'FN': 0, 'TP': 0}
+
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
+
+    if y_true.shape != y_pred.shape:
+        raise ValueError("Shapes of y_true and y_pred must match.")
+    if len(y_true) == 0:
+        return {'TN': 0, 'FP': 0, 'FN': 0, 'TP': 0}
+    
+    tn = np.sum((y_true == 0) & (y_pred == 0))
+    
+    # FP = sum((y_true == 0) & (y_pred == 1))
+    fp = np.sum((y_true == 0) & (y_pred == 1))
+    
+    # FN = sum((y_true == 1) & (y_pred == 0))
+    fn = np.sum((y_true == 1) & (y_pred == 0))
+    
+    # TP = sum((y_true == 1) & (y_pred == 1))
+    tp = np.sum((y_true == 1) & (y_pred == 1))
+    
+    return {
+        'TN': int(tn),
+        'FP': int(fp),
+        'FN': int(fn),
+        'TP': int(tp)
+    }
 
 
 def compare_models(nb_preds, lr_preds, y_true):

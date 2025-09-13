@@ -1,0 +1,3 @@
+The final segment of this project which allowed us to utilize the Machine Learning libraries in Python were more straightforward as alot of platforms such as freeCodeCamp and Kaggle provides boiler-plate code for newcomers to follow.
+
+The earlier segment of the project was far more challenging and required a lot of research into some Machine Learning written texts and research papers alongside some compilation and summarization from document pairing tools like NotebookLM to group ideas together to come to appropriate conclusions.
