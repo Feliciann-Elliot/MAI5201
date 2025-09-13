@@ -165,7 +165,12 @@ def sgd_step(weights, gradients, learning_rate):
     # 1. Convert inputs to numpy arrays
     # 2. Apply the SGD update formula
     # 3. Return updated weights as numpy array
-    return np.array([])
+    
+    weights = np.array(weights)
+    gradients = np.array(gradients)
+
+    updated_weights = weights - learning_rate * gradients
+    return updated_weights
 
 
 def train_logistic_regression(X, y, learning_rate=0.01, epochs=100):
