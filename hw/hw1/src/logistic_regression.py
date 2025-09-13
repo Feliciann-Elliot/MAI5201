@@ -303,7 +303,17 @@ def calculate_accuracy(y_true, y_pred):
     # 2. Count correct predictions: sum(y_true == y_pred)
     # 3. Divide by total predictions: len(y_true)
     # 4. Handle empty inputs
-    return 0.0
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
+
+    if len(y_true) == 0:
+        return 0.0
+    
+    correct_predictions = np.sum(y_true == y_pred)
+    total_predictions = len(y_true)
+    accuracy = correct_predictions / total_predictions
+
+    return float(accuracy)
 
 
 def calculate_precision_recall(y_true, y_pred):
