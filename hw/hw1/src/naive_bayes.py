@@ -203,8 +203,70 @@ def naive_bayes_predict(vector: List[float], priors: Dict[int, float],
     # Step 4: Find class with highest probability
     # Step 5: Return (predicted_class, all_probabilities)
     
-    # For now, return dummy values until implemented
-    return 0, {}
+    if not vector or not priors or not likelihoods:
+        return 0, {}
+    
+    # Step 1: For each class, calculate log-probability
+    # log P(class|features) = log P(class) + Σ count_i * log P(feature_i|class)
+    log_probabilities = {}
+    
+    for class_label in priors:
+        if class_label not in likelihoods:
+            continue
+            
+        if priors[class_label] > 0:
+            log_prob = math.log(priors[class_label])
+        else:
+            log_prob = float('-inf')  # Log of zero is negative infinity
+        
+        class_likelihoods = likelihoods[class_label]
+        
+        min_length = min(len(vector), len(class_likelihoods))
+        
+        for i in range(min_length):
+            feature_value = vector[i]
+            feature_prob = class_likelihoods[i]
+            
+            if feature_value > 0 and feature_prob > 0:
+                log_prob += feature_value * math.log(feature_prob)
+            elif feature_value > 0 and feature_prob == 0:
+                log_prob = float('-inf')
+                break
+        
+        log_probabilities[class_label] = log_prob
+    
+    # Step 2: Convert log-probabilities back to regular probabilities
+    # First, find the maximum log probability to prevent overflow
+    if not log_probabilities:
+        return 0, {}
+    
+    max_log_prob = max(log_probabilities.values())
+    
+    unnormalized_probs = {}
+    for class_label, log_prob in log_probabilities.items():
+        if log_prob == float('-inf'):
+            unnormalized_probs[class_label] = 0.0
+        else:
+            unnormalized_probs[class_label] = math.exp(log_prob - max_log_prob)
+    
+    # Step 3: Normalize probabilities to sum to 1.0
+    total_prob = sum(unnormalized_probs.values())
+    
+    if total_prob > 0:
+        normalized_probs = {class_label: prob / total_prob 
+                          for class_label, prob in unnormalized_probs.items()}
+    else:
+        num_classes = len(unnormalized_probs)
+        normalized_probs = {class_label: 1.0 / num_classes 
+                          for class_label in unnormalized_probs}
+    
+    # Step 4: Find class with highest probability
+    if normalized_probs:
+        predicted_class = max(normalized_probs, key=normalized_probs.get)
+    else:
+        predicted_class = 0
+    
+    return predicted_class, normalized_probs
 
 
 def train_naive_bayes(vectors: List[List[float]], labels: List[int]) -> Tuple[Dict[int, float], Dict[int, List[float]]]:
