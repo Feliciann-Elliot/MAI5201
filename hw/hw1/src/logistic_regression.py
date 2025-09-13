@@ -411,7 +411,32 @@ def confusion_matrix(y_true, y_pred):
     #    - FN = sum((y_true == 1) & (y_pred == 0))
     #    - TP = sum((y_true == 1) & (y_pred == 1))
     # 3. Return as dictionary
-    return {'TN': 0, 'FP': 0, 'FN': 0, 'TP': 0}
+
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
+
+    if y_true.shape != y_pred.shape:
+        raise ValueError("Shapes of y_true and y_pred must match.")
+    if len(y_true) == 0:
+        return {'TN': 0, 'FP': 0, 'FN': 0, 'TP': 0}
+    
+    tn = np.sum((y_true == 0) & (y_pred == 0))
+    
+    # FP = sum((y_true == 0) & (y_pred == 1))
+    fp = np.sum((y_true == 0) & (y_pred == 1))
+    
+    # FN = sum((y_true == 1) & (y_pred == 0))
+    fn = np.sum((y_true == 1) & (y_pred == 0))
+    
+    # TP = sum((y_true == 1) & (y_pred == 1))
+    tp = np.sum((y_true == 1) & (y_pred == 1))
+    
+    return {
+        'TN': int(tn),
+        'FP': int(fp),
+        'FN': int(fn),
+        'TP': int(tp)
+    }
 
 
 def compare_models(nb_preds, lr_preds, y_true):
