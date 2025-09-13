@@ -119,7 +119,43 @@ def calculate_feature_likelihoods(vectors: List[List[float]], labels: List[int])
     # Step 5: Return dictionary mapping class -> feature probabilities
     
     # For now, return empty dictionary until implemented
-    return {}
+    if not vectors or not labels or len(vectors) != len(labels):
+        return {}
+    
+    class_vectors = {}
+    num_features = len(vectors[0]) if vectors else 0
+
+    unique_classes = set(labels)
+    for label in unique_classes:
+        class_vectors[label] = []
+
+    for vector, label in zip(vectors, labels):
+        class_vectors[label].append(vector)
+
+    feature_likelihoods = {}
+
+    for class_label, class_docs in class_vectors.items():
+        if not class_docs:
+            feature_likelihoods[class_label] = [0.0] * num_features
+            continue
+
+        feature_sum = [0.0] * num_features
+        for vector in class_docs:
+            for i in range(num_features):
+                feature_sum[i] += vector[i]
+        
+        alpha = 1.0
+        smoooth_sums = [count + alpha for count in feature_sum]
+
+        total_count = sum(smoooth_sums)
+
+        if total_count > 0:
+            probabilities = [count / total_count for count in smoooth_sums]
+        else:
+            probabilities = [1.0 / num_features if num_features > 0 else 0.0] * num_features
+        
+        feature_likelihoods[class_label] = probabilities
+    return feature_likelihoods
 
 
 def naive_bayes_predict(vector: List[float], priors: Dict[int, float], 
