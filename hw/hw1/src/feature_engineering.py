@@ -296,4 +296,133 @@ def build_feature_matrix(texts: List[str], feature_config: Dict[str, bool]) -> T
     # Step 5: Return matrix and names
     
     # For now, return empty results until implemented
-    return [], []
+    config = {
+        'use_unigrams': feature_config.get('use_unigrams', True),
+        'use_bigrams': feature_config.get('use_bigrams', True),
+        'use_tfidf': feature_config.get('use_tfidf', True),
+        'use_statistics': feature_config.get('use_statistics', True)
+    }
+
+    all_features = []
+    feature_names = []
+
+    max_n = 1
+    if config['use_bigrams']:
+        max_n = 2
+    elif config['use_unigrams']:
+        max_n = 1
+    else:
+        max_n = 1
+
+    if config['use_unigrams'] or config['use_bigrams']:
+        vocab = add_ngram_features(texts, n=max_n)
+    else:
+        vocab = {}
+
+    if config['use_tfidf'] and len(vocab) > 0:
+        tfidf_vectors = compute_tf_idf_features(texts, vocab)
+        base_vectors = tfidf_vectors
+    elif len(vocab) > 0:
+        base_vectors = []
+        for text in texts:
+            word_counts = extract_bag_of_words(text)
+            vector = [0] * len(vocab)
+            text_ngrams = set()
+            words = re.findall(r'\b\w+\b', text.lower())
+
+            if config['use_unigrams']:
+                for word in words:
+                    text_ngrams.add(word)
+
+            if config['use_bigrams'] and len(words) >= 2:
+                for i in range(len(words) - 1):
+                    bigram = f"{words[i]} {words[i + 1]}"
+                    text_ngrams.add(bigram)
+            
+            for ngram, idx in vocab.items():
+                if ngram in text_ngrams:
+                    vector[idx] = 1.0
+            base_vectors.append(vector)
+    else:
+        base_vectors = [[0.0] * 0 for _ in texts] if texts else [[]]
+        if texts:
+            base_vectors = [[0.0] * 0 for _ in texts]
+        else:
+            base_vectors = []
+        
+    if not base_vectors and texts:
+        base_vectors = [[0.0] * len(vocab) for _ in texts]
+    elif not base_vectors and not texts:
+        base_vectors = []
+    
+    
+    if config['use_statistics']:
+        stat_features = extract_feature_statistics(texts)
+        stat_vectors = []
+        stat_names = [
+            'word_count', 'char_count', 'sentence_count', 'avg_word_length',
+            'vocab_diversity', 'exclamation_count', 'question_count', 'uppercase_ratio'
+        ]
+        
+        for stat_dict in stat_features:
+            stat_vector = [
+                stat_dict['word_count'], stat_dict['char_count'], stat_dict['sentence_count'],
+                stat_dict['avg_word_length'], stat_dict['vocab_diversity'],
+                stat_dict['exclamation_count'], stat_dict['question_count'], stat_dict['uppercase_ratio']
+            ]
+            stat_vectors.append(stat_vector)
+    else:
+        stat_vectors = [[] for _ in texts] if texts else []
+        stat_names = []
+    
+    
+    final_matrix = []
+    
+    
+    if not texts:
+        return [], []
+    
+    
+    text_count = len(texts)
+    
+    
+    all_feature_names = []
+    
+    
+    if vocab:
+        
+        sorted_vocab_items = sorted(vocab.items(), key=lambda x: x[1])
+        ngram_names = [item[0] for item in sorted_vocab_items]
+        all_feature_names.extend(ngram_names)
+    else:
+        if not base_vectors:
+            base_vectors = [[0.0] for _ in texts]
+    
+    if config['use_statistics']:
+        all_feature_names.extend(stat_names)
+    
+    if not base_vectors:
+        base_vectors = [[0.0] * len(vocab) for _ in texts] if vocab else [[] for _ in texts]
+    
+    if len(base_vectors) != len(stat_vectors) and stat_vectors:
+        if not base_vectors:
+            base_vectors = [[] for _ in texts]
+    
+    for i in range(len(texts)):
+        if i < len(base_vectors):
+            combined_vector = list(base_vectors[i])
+        else:
+            combined_vector = [0.0] * len(vocab)
+        
+        if config['use_statistics'] and i < len(stat_vectors):
+            combined_vector.extend(stat_vectors[i])
+        elif config['use_statistics']:
+            combined_vector.extend([0.0] * 8)  # 8 statistical features
+        
+        final_matrix.append(combined_vector)
+    
+    if not all_feature_names:
+        all_feature_names = []
+        final_matrix = [[0.0] for _ in texts] if texts else []
+    
+    return final_matrix, all_feature_names
