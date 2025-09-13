@@ -118,7 +118,21 @@ def compute_gradients(X, y, weights):
     # 3. Compute error = predictions - y_true
     # 4. Compute gradients = X.T @ error / n_samples
     # 5. Return gradients as numpy array
-    return np.array([])
+
+    X = np.array(X)
+    y = np.array(y)
+    weights = np.array(weights)
+
+    if X.size == 0 or y.size == 0 or weights.size == 0:
+        return np.zeros_like(weights)
+
+    samples = X.shape[0]
+    linear_output = np.dot(X, weights)
+    predictions = 1 / (1 + np.exp(-linear_output))
+    
+    errors = predictions - y
+    gradients = np.dot(X.T, errors) / samples
+    return gradients
 
 
 def sgd_step(weights, gradients, learning_rate):
