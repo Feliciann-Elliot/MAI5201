@@ -349,7 +349,28 @@ def calculate_precision_recall(y_true, y_pred):
     # 4. Calculate False Negatives: sum((y_true == 1) & (y_pred == 0))
     # 5. Calculate precision and recall using formulas
     # 6. Handle edge cases (division by zero)
-    return (0.0, 0.0)
+
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
+
+    if len(y_true) == 0:
+        return (0.0, 0.0)
+    
+    TP = np.sum((y_true == 1) & (y_pred == 1))
+    FP = np.sum((y_true == 0) & (y_pred == 1))
+    FN = np.sum((y_true == 1) & (y_pred == 0))
+
+    if TP + FP > 0:
+        precision = TP / (TP + FP)
+    else:
+        precision = 0.0
+
+    if TP + FN > 0:
+        recall = TP / (TP + FN)
+    else:
+        recall = 0.0
+    
+    return float(precision), float(recall)
 
 
 def confusion_matrix(y_true, y_pred):
