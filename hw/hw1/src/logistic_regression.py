@@ -35,8 +35,15 @@ def sigmoid(z):
     """
     # TODO: Implement sigmoid function
     # Hint: Use np.exp() and handle potential overflow with np.clip()
-    return 0.0
+    z = np.array(z)
 
+    z_clip = np.clip(z, -500, 500) 
+    sigmoid_values = 1 / (1 + np.exp(-z_clip))
+
+    if np.isscalar(z):
+        return float(sigmoid_values)
+    else:
+        return sigmoid_values.tolist() if not isinstance(z, np.ndarray) else sigmoid_values
 
 def cross_entropy_loss(y_true, y_pred):
     """
