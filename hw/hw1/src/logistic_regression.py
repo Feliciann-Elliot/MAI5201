@@ -5,7 +5,7 @@ Logistic Regression Core Functions
 Implement the fundamental components of logistic regression:
 sigmoid activation, cross-entropy loss, and gradient computation.
 
-Your Name: [Your Name Here]
+Your Name: Feliciann Elliot
 """
 
 import numpy as np

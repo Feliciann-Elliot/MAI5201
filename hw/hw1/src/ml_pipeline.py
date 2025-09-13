@@ -9,7 +9,7 @@ to build the same classifiers, comparing library performance with your custom im
 This demonstrates the power of well-optimized libraries while reinforcing your
 understanding of the machine learning pipeline.
 
-Your Name: [Your Name Here]
+Your Name: Feliciann Elliot
 """
 
 import numpy as np
@@ -129,8 +129,18 @@ class MovieReviewClassifier:
             # 3. Store results in self.X_train, self.X_test
             
             # Placeholder
-            self.count_vectorizer = CountVectorizer()
-            pass
+            self.count_vectorizer = CountVectorizer(
+                lowercase=True,
+                stop_words='english',
+                max_features=10000,
+                ngram_range=(1, 2)
+            )
+            train_texts = getattr(self, 'train_texts', getattr(self, 'X_train_text', getattr(self, 'train_X', self.X_train)))
+            test_texts = getattr(self, 'test_texts', getattr(self, 'X_test_text', getattr(self, 'test_X', self.X_test)))
+
+            self.X_train = self.count_vectorizer.fit_transform(self.texts_train)
+            self.X_test = self.count_vectorizer.transform(self.texts_test)
+            
             
         elif feature_type == 'tfidf':
             # TODO: Implement TF-IDF feature extraction
@@ -139,8 +149,15 @@ class MovieReviewClassifier:
             # 3. Store results in self.X_train, self.X_test
             
             # Placeholder
-            self.tfidf_vectorizer = TfidfVectorizer()
-            pass
+            self.tfidf_vectorizer = TfidfVectorizer(
+                lowercase=True,
+                stop_words='english',
+                max_features=10000,
+                ngram_range=(1, 2)
+            )
+            
+            self.X_train = self.tfidf_vectorizer.fit_transform(self.texts_train)
+            self.X_test = self.tfidf_vectorizer.transform(self.texts_test)
             
         else:
             raise ValueError(f"Unknown feature type: {feature_type}")

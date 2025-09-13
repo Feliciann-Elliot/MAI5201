@@ -3,9 +3,9 @@ MAI 5201 - Homework 1: Machine Learning for NLP
 Part 1: From Scratch Implementation
 Q2: Feature Engineering (8 pts)
 
-Student Name: [Your Name Here]
-Student ID: [Your ID Here]
-Date: [Date]
+Student Name: Feliciann Elliot
+Student ID: 1022055
+Date: September 12, 2025
 
 Instructions:
 - Build on Q1 functions to implement advanced feature engineering

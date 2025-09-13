@@ -3,9 +3,9 @@ MAI 5201 - Homework 1: Machine Learning for NLP
 Part 1: From Scratch Implementation
 Q3: Naive Bayes from Scratch (8 pts)
 
-Student Name: [Your Name Here]
-Student ID: [Your ID Here]
-Date: [Date]
+Student Name: Feliciann Elliot
+Student ID: 1022055
+Date: September 12, 2025
 
 Instructions:
 - Implement Naive Bayes classifier using only basic Python and math operations
