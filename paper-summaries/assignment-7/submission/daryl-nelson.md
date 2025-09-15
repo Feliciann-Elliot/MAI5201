@@ -4,7 +4,7 @@
 **Student ID**:1021215
 **Assignment**: Paper Summary 7  
 **Date**: 9/15/2025
-**Word Count**: 243
+**Word Count**: 250
 
 
 ## Citation
@@ -20,4 +20,4 @@ In this paper, I enjoyed the way the authors broke down the problem and previous
 In certain sections of this paper, the mathematical notations were very difficult to follow. I believe there should have been more context and explanations behind the notations. This paper went in depth, and the authors explored both advantages and limitations of LSTMs, which I am very happy about.
 
 ### What questions do you have from reading the paper?
-As it relates to the limitations of LSTMs struggling with tasks that need combining distant inputs in one step, how would these researchers propose to solve this issue? Would it require adding other architectural units, which may increase the weight of the network? The network weight is a factor when also considering another limitation, where LSTMs are not able to precisely identify the exact time steps when memory was updated.
+As it relates to the limitations of LSTMs struggling with tasks that need combining distant inputs in one step, how would these researchers propose to solve this issue? Would it require adding other architectural units, which may increase the weight of the network? The network weight is a factor when also considering another limitation, where LSTMs are not able to precisely identify the exact time steps when memory was updated, achieving this may require additional architectural  units.
