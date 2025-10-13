@@ -48,24 +48,25 @@ class FeedforwardClassifier(nn.Module):
         
         # TODO: Initialize embedding layer
         # Hint: Use nn.Embedding(vocab_size, embedding_dim)
-        self.embedding = None
+        self.embedding = nn.Embedding(vocab_size, embedding_dim)
         
         # TODO: Initialize hidden layers
         # Requirement: At least 2 hidden layers with ReLU activation
         # Architecture suggestion:
         # embedding_dim → hidden_dim → hidden_dim → num_classes
-        self.hidden1 = None
-        self.hidden2 = None
-        self.output = None
+        self.hidden1 = nn.Linear(embedding_dim, hidden_dim)
+        self.hidden2 = nn.Linear(hidden_dim, hidden_dim)
+        self.output = nn.Linear(hidden_dim, num_classes)
         
         # TODO: Initialize dropout layer
         # Hint: Use nn.Dropout(dropout_prob)
-        self.dropout = None
+        self.dropout = nn.Dropout(dropout_prob)
         
         # Store configuration
         self.embedding_dim = embedding_dim
         self.hidden_dim = hidden_dim
         self.num_classes = num_classes
+
     
     def forward(self, input_ids: torch.Tensor, attention_mask: Optional[torch.Tensor] = None) -> torch.Tensor:
         """
@@ -82,7 +83,7 @@ class FeedforwardClassifier(nn.Module):
         
         # Step 1: Convert input_ids to embeddings
         # Shape: (batch_size, seq_len) → (batch_size, seq_len, embedding_dim)
-        embeddings = None  # Use self.embedding
+        embeddings = self.embedding(input_ids)  # Use self.embedding
         
         # Step 2: Aggregate embeddings across sequence length
         # We'll use mean pooling to convert variable-length sequences to fixed-size
@@ -92,23 +93,25 @@ class FeedforwardClassifier(nn.Module):
             # TODO: Use attention mask to ignore padding tokens
             # Hint: Multiply embeddings by attention_mask.unsqueeze(-1)
             # Then divide by the sum of attention_mask for proper averaging
-            masked_embeddings = None
-            pooled = None
+            masked_embeddings = embeddings * attention_mask.unsqueeze(-1)
+            pooled = masked_embeddings.sum(dim=1) / attention_mask.unsqueeze(-1).sum(dim=1).clamp(min=1)
         else:
             # Simple mean pooling without mask
-            pooled = None  # Use torch.mean along dimension 1
+            pooled = embeddings.mean(dim=1)  # Use torch.mean along dimension 1
+
         
         # Step 3: Pass through hidden layers with ReLU and dropout
         # Shape: (batch_size, embedding_dim) → (batch_size, hidden_dim)
-        hidden1_out = None  # Apply hidden1, then ReLU, then dropout
+        hidden1_out = self.dropout(F.relu(self.hidden1(pooled)))  # Apply hidden1, then ReLU, then dropout
+
         
         # Step 4: Second hidden layer
         # Shape: (batch_size, hidden_dim) → (batch_size, hidden_dim)
-        hidden2_out = None  # Apply hidden2, then ReLU, then dropout
+        hidden2_out = self.dropout(F.relu(self.hidden2(hidden1_out)))  # Apply hidden2, then ReLU, then dropout
         
         # Step 5: Output layer (no activation - we'll use CrossEntropyLoss)
         # Shape: (batch_size, hidden_dim) → (batch_size, num_classes)
-        logits = None  # Apply output layer
+        logits = self.output(hidden2_out)  # Apply output layer
         
         return logits
 
