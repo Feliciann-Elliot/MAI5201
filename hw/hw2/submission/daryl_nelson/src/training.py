@@ -21,6 +21,8 @@ from torch.utils.data import DataLoader
 import numpy as np
 from typing import Dict, List, Tuple, Optional
 from tqdm import tqdm
+from sklearn.metrics import precision_recall_fscore_support
+
 
 
 def train_epoch(model: nn.Module, train_loader: DataLoader, optimizer: optim.Optimizer, 
@@ -61,7 +63,6 @@ def train_epoch(model: nn.Module, train_loader: DataLoader, optimizer: optim.Opt
         optimizer.zero_grad()
 
         # Step 4: Forward pass
-        # TODO: Get model predictions
         if attention_mask is not None:
             logits = model(input_ids, attention_mask)  # Pass input_ids (and attention_mask if available) to model
         else:
@@ -126,12 +127,13 @@ def validate_epoch(model: nn.Module, val_loader: DataLoader, criterion: nn.Modul
                 attention_mask = attention_mask.to(device)
             
             # Step 3: Forward pass (no gradients needed)
-            # TODO: Get model predictions
-            logits = None
+            if attention_mask is not None:
+                logits = model(input_ids, attention_mask)
+            else:
+                logits = model(input_ids)
             
             # Step 4: Calculate loss
-            # TODO: Compute loss
-            loss = None
+            loss = criterion(logits, labels)
             
             # Step 5: Track metrics
             total_loss += loss.item()
@@ -174,8 +176,8 @@ def train_model(model: nn.Module, train_loader: DataLoader, val_loader: DataLoad
     
     # TODO: Initialize optimizer and loss function
     # Hint: Use Adam optimizer and CrossEntropyLoss
-    optimizer = None  # torch.optim.Adam(model.parameters(), lr=learning_rate)
-    criterion = None  # nn.CrossEntropyLoss()
+    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)  # torch.optim.Adam(model.parameters(), lr=learning_rate)
+    criterion = nn.CrossEntropyLoss()  # nn.CrossEntropyLoss()
     
     # Initialize tracking variables
     history = {
@@ -219,7 +221,7 @@ def train_model(model: nn.Module, train_loader: DataLoader, val_loader: DataLoad
             # TODO: Update best validation loss and save model state
             best_val_loss = val_loss
             patience_counter = 0
-            best_model_state = None  # Save model.state_dict()
+            best_model_state = model.state_dict()  # Save model.state_dict()
             print(f"✓ New best validation loss: {val_loss:.4f}")
         else:
             # TODO: Increment patience counter
@@ -233,7 +235,7 @@ def train_model(model: nn.Module, train_loader: DataLoader, val_loader: DataLoad
     
     # TODO: Load best model state
     if best_model_state is not None:
-        pass  # model.load_state_dict(best_model_state)
+        model.load_state_dict(best_model_state)
         print("Loaded best model from training")
     
     return history
@@ -272,8 +274,12 @@ def evaluate_model(model: nn.Module, test_loader: DataLoader,
                 attention_mask = attention_mask.to(device)
             
             # TODO: Get predictions
-            logits = None  # model forward pass
-            predictions = None  # torch.argmax(logits, dim=-1)
+            if attention_mask is not None:
+                logits = model(input_ids, attention_mask) # model forward pass
+            else:
+                logits = model(input_ids)
+
+            predictions = torch.argmax(logits, dim=-1)  # torch.argmax(logits, dim=-1)
             
             # Store for metrics calculation
             all_predictions.extend(predictions.cpu().numpy())
@@ -287,10 +293,20 @@ def evaluate_model(model: nn.Module, test_loader: DataLoader,
     
     # TODO: Add more metrics (precision, recall, F1)
     # Hint: You can use sklearn.metrics for additional metrics
+    precision, recall, f1, _ = precision_recall_fscore_support(
+        all_labels,
+        all_predictions,
+        average='weighted',
+        zero_division=0
+    )
+
     
     metrics = {
         'accuracy': accuracy,
         'num_samples': len(all_labels),
+        'precision': float(precision),
+        'recall': float(recall),
+        'f1': float(f1),
         'num_correct': (all_predictions == all_labels).sum()
     }
     
