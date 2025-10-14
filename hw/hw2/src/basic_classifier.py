@@ -48,19 +48,19 @@ class FeedforwardClassifier(nn.Module):
         
         # TODO: Initialize embedding layer
         # Hint: Use nn.Embedding(vocab_size, embedding_dim)
-        self.embedding = None
+        self.embedding = nn.Embedding(vocab_size, embedding_dim)
         
         # TODO: Initialize hidden layers
         # Requirement: At least 2 hidden layers with ReLU activation
         # Architecture suggestion:
         # embedding_dim → hidden_dim → hidden_dim → num_classes
-        self.hidden1 = None
-        self.hidden2 = None
-        self.output = None
+        self.hidden1 = nn.Linear(embedding_dim, hidden_dim)
+        self.hidden2 = nn.Linear(hidden_dim, hidden_dim)
+        self.output = nn.Linear(hidden_dim, num_classes)
         
         # TODO: Initialize dropout layer
         # Hint: Use nn.Dropout(dropout_prob)
-        self.dropout = None
+        self.dropout = nn.Dropout(dropout_prob)
         
         # Store configuration
         self.embedding_dim = embedding_dim
