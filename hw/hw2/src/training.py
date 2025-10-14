@@ -59,20 +59,26 @@ def train_epoch(model: nn.Module, train_loader: DataLoader, optimizer: optim.Opt
         
         # Step 3: Zero gradients
         # TODO: Clear gradients from previous iteration
+        optimizer.zero_grad()
         
         # Step 4: Forward pass
         # TODO: Get model predictions
-        logits = None  # Pass input_ids (and attention_mask if available) to model
+        if attention_mask is not None:
+            logits = model(input_ids, attention_mask=attention_mask) # Pass input_ids (and attention_mask if available) to model
+        else:
+            logits = model(input_ids)
         
         # Step 5: Calculate loss
         # TODO: Compute loss using criterion
-        loss = None
+        loss = criterion(logits, labels)
         
         # Step 6: Backward pass
         # TODO: Compute gradients
+        loss.backward()
         
         # Step 7: Update weights
         # TODO: Apply optimizer step
+        optimizer.step()
         
         # Step 8: Track metrics
         total_loss += loss.item()
