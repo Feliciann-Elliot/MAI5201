@@ -130,11 +130,15 @@ def validate_epoch(model: nn.Module, val_loader: DataLoader, criterion: nn.Modul
             
             # Step 3: Forward pass (no gradients needed)
             # TODO: Get model predictions
-            logits = None
+            if attention_mask is not None:
+                logits = model(input_ids, attention_mask=attention_mask)
+            else:
+                logits = model(input_ids)
+
             
             # Step 4: Calculate loss
             # TODO: Compute loss
-            loss = None
+            loss = criterion(logits, labels)
             
             # Step 5: Track metrics
             total_loss += loss.item()
