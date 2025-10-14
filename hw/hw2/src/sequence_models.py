@@ -44,19 +44,20 @@ class LSTMClassifier(nn.Module):
         super(LSTMClassifier, self).__init__()
         
         # TODO: Initialize embedding layer
-        self.embedding = None  # nn.Embedding(vocab_size, embedding_dim)
+        self.embedding = nn.Embedding(vocab_size, embedding_dim)  # nn.Embedding(vocab_size, embedding_dim)
         
         # TODO: Initialize LSTM layer
         # Hint: Use nn.LSTM with batch_first=True for easier handling
-        self.lstm = None  # nn.LSTM(embedding_dim, hidden_dim, num_layers, 
+        self.lstm = nn.LSTM(embedding_dim, hidden_dim, num_layers, 
+                            batch_first=True, dropout=dropout_prob if num_layers > 1 else 0)  # nn.LSTM(embedding_dim, hidden_dim, num_layers, 
                          #          batch_first=True, dropout=dropout_prob if num_layers > 1 else 0)
         
         # TODO: Initialize dropout layer
-        self.dropout = None  # nn.Dropout(dropout_prob)
+        self.dropout = nn.Dropout(dropout_prob)  # nn.Dropout(dropout_prob)
         
         # TODO: Initialize classifier layer
         # Maps from LSTM hidden dimension to number of classes
-        self.classifier = None  # nn.Linear(hidden_dim, num_classes)
+        self.classifier = nn.Linear(hidden_dim, num_classes)  # nn.Linear(hidden_dim, num_classes)
         
         # Store configuration
         self.hidden_dim = hidden_dim
@@ -78,7 +79,7 @@ class LSTMClassifier(nn.Module):
         
         # TODO: Step 1 - Convert input to embeddings
         # Shape: (batch_size, seq_len) → (batch_size, seq_len, embedding_dim)
-        embeddings = None  # self.embedding(input_ids)
+        embeddings = self.embedding(input_ids)  # self.embedding(input_ids)
         
         # TODO: Step 2 - Process with LSTM
         # For efficiency with variable lengths, you can use pack_padded_sequence
@@ -91,16 +92,16 @@ class LSTMClassifier(nn.Module):
             # lstm_output, _ = nn.utils.rnn.pad_packed_sequence(lstm_output, batch_first=True)
             
             # For simplicity, just use regular LSTM processing
-            lstm_output, (hidden, cell) = None  # self.lstm(embeddings)
+            lstm_output, (hidden, cell) = self.lstm(embeddings)  # self.lstm(embeddings)
         else:
             # Regular LSTM processing
             # Shape: (batch_size, seq_len, embedding_dim) → (batch_size, seq_len, hidden_dim)
-            lstm_output, (hidden, cell) = None  # self.lstm(embeddings)
+            lstm_output, (hidden, cell) = self.lstm(embeddings)  # self.lstm(embeddings)
         
         # TODO: Step 3 - Extract sequence representation
         # Option 1: Use final hidden state
         # Shape: (num_layers, batch_size, hidden_dim) → (batch_size, hidden_dim)
-        final_hidden = None  # hidden[-1]  # Take last layer's hidden state
+        final_hidden = hidden[-1]  # hidden[-1]  # Take last layer's hidden state
         
         # Option 2: Use max pooling over sequence (alternative approach)
         # pooled, _ = torch.max(lstm_output, dim=1)  # Max over sequence length
@@ -115,11 +116,11 @@ class LSTMClassifier(nn.Module):
         #     pooled = lstm_output.mean(dim=1)
         
         # TODO: Step 4 - Apply dropout
-        representation = None  # self.dropout(final_hidden)
+        representation = self.dropout(final_hidden)  # self.dropout(final_hidden)
         
         # TODO: Step 5 - Classify
         # Shape: (batch_size, hidden_dim) → (batch_size, num_classes)
-        logits = None  # self.classifier(representation)
+        logits = self.classifier(representation)  # self.classifier(representation)
         
         return logits
 
