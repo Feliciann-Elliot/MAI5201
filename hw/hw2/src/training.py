@@ -181,8 +181,8 @@ def train_model(model: nn.Module, train_loader: DataLoader, val_loader: DataLoad
     
     # TODO: Initialize optimizer and loss function
     # Hint: Use Adam optimizer and CrossEntropyLoss
-    optimizer = None  # torch.optim.Adam(model.parameters(), lr=learning_rate)
-    criterion = None  # nn.CrossEntropyLoss()
+    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)  # torch.optim.Adam(model.parameters(), lr=learning_rate)
+    criterion = nn.CrossEntropyLoss()  # nn.CrossEntropyLoss()
     
     # Initialize tracking variables
     history = {
@@ -226,7 +226,7 @@ def train_model(model: nn.Module, train_loader: DataLoader, val_loader: DataLoad
             # TODO: Update best validation loss and save model state
             best_val_loss = val_loss
             patience_counter = 0
-            best_model_state = None  # Save model.state_dict()
+            best_model_state = model.save_dict()  # Save model.state_dict()
             print(f"✓ New best validation loss: {val_loss:.4f}")
         else:
             # TODO: Increment patience counter
@@ -240,7 +240,7 @@ def train_model(model: nn.Module, train_loader: DataLoader, val_loader: DataLoad
     
     # TODO: Load best model state
     if best_model_state is not None:
-        pass  # model.load_state_dict(best_model_state)
+        model.load_state_dict(best_model_state)  # model.load_state_dict(best_model_state)
         print("Loaded best model from training")
     
     return history
