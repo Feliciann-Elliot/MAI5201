@@ -23,6 +23,23 @@ from typing import Dict, List, Tuple, Optional
 from sklearn.metrics import precision_recall_fscore_support
 from tqdm import tqdm
 
+def _ensure_vocab_built_from_loader(loader):
+    ds = getattr(loader, "dataset", None)
+    tok = getattr(ds, "tokenizer", None)
+    if tok is None:
+        return
+
+    needs_build = False
+    if hasattr(tok, "vocab_built"): # Check for vocab_built first, as per SimpleTokenizer
+        needs_build = not bool(getattr(tok, "vocab_built", True))
+    elif hasattr(tok, "is_built"): # Fallback for other potential tokenizers
+        needs_build = not bool(getattr(tok, "is_built", True))
+    elif hasattr(tok, "word2id"):
+        needs_build = len(getattr(tok, "word2id", {})) == 0
+
+    # Build from raw texts if available
+    if needs_build and hasattr(ds, "texts") and ds.texts:
+        tok.build_vocab(ds.texts)
 
 def train_epoch(model: nn.Module, train_loader: DataLoader, optimizer: optim.Optimizer, 
                 criterion: nn.Module, device: torch.device) -> Tuple[float, float]:
@@ -40,10 +57,13 @@ def train_epoch(model: nn.Module, train_loader: DataLoader, optimizer: optim.Opt
         Tuple[float, float]: Average loss and accuracy for the epoch
     """
     # TODO: Implement training for one epoch
+    _ensure_vocab_built_from_loader(train_loader)
+
     
     # Step 1: Set model to training mode
     model.train()
-    
+
+
     total_loss = 0.0
     correct_predictions = 0
     total_samples = 0
@@ -111,10 +131,11 @@ def validate_epoch(model: nn.Module, val_loader: DataLoader, criterion: nn.Modul
         Tuple[float, float]: Average loss and accuracy for the epoch
     """
     # TODO: Implement validation for one epoch
+    _ensure_vocab_built_from_loader(val_loader)
     
     # Step 1: Set model to evaluation mode
     model.eval()
-    
+
     total_loss = 0.0
     correct_predictions = 0
     total_samples = 0
