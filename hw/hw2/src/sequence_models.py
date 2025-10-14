@@ -3,9 +3,9 @@ MAI 5201 - Homework 2: Neural Networks for NLP
 Part 2: Sequence Models
 Q3-Q4: LSTM and Bidirectional LSTM Classifiers (35 pts)
 
-Student Name: [Your Name Here]
-Student ID: [Your ID Here]
-Date: [Date]
+Student Name: Feliciann Elliot
+Student ID: 1022055
+Date: October 14, 2025
 
 Instructions:
 - Implement LSTM and Bidirectional LSTM classifiers below

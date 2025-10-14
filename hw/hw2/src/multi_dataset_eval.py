@@ -3,9 +3,9 @@ MAI 5201 - Homework 2: Neural Networks for NLP
 Part 3: Multi-Dataset Application and Evaluation
 Q5-Q6: Apply models to multiple datasets and analyze results (15 pts)
 
-Student Name: [Your Name Here]
-Student ID: [Your ID Here]
-Date: [Date]
+Student Name: Feliciann Elliot
+Student ID: 1022055
+Date: October 14, 2025
 
 Instructions:
 - Apply your best model from Parts 1-2 to multiple datasets

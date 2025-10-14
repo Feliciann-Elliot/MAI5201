@@ -3,9 +3,9 @@ MAI 5201 - Homework 2: Neural Networks for NLP
 Part 1: Basic Neural Text Classification
 Q1: Feedforward Neural Classifier (15 pts)
 
-Student Name: [Your Name Here]
-Student ID: [Your ID Here]
-Date: [Date]
+Student Name: Feliciann Elliot
+Student ID: 1022055
+Date: October 14, 2025
 
 Instructions:
 - Implement the FeedforwardClassifier class below

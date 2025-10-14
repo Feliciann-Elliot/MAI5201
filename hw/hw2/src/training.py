@@ -3,9 +3,9 @@ MAI 5201 - Homework 2: Neural Networks for NLP
 Part 1: Basic Neural Text Classification
 Q2: Training Loop Implementation (15 pts)
 
-Student Name: [Your Name Here]
-Student ID: [Your ID Here]
-Date: [Date]
+Student Name: Feliciann Elliot
+Student ID: 1022055
+Date: October 14, 2025
 
 Instructions:
 - Implement the training and validation functions below
