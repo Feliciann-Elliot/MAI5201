@@ -227,7 +227,7 @@ def train_model(model: nn.Module, train_loader: DataLoader, val_loader: DataLoad
             # TODO: Update best validation loss and save model state
             best_val_loss = val_loss
             patience_counter = 0
-            best_model_state = model.save_dict()  # Save model.state_dict()
+            best_model_state = model.state_dict()  # Save model.state_dict()
             print(f"✓ New best validation loss: {val_loss:.4f}")
         else:
             # TODO: Increment patience counter
@@ -284,7 +284,8 @@ def evaluate_model(model: nn.Module, test_loader: DataLoader,
                 logits = model(input_ids, attention_mask=attention_mask)  # model forward pass
             else:
                 logits = model(input_ids)
-                predictions = torch.argmax(logits, dim=-1)  # torch.argmax(logits, dim=-1)
+            
+            predictions = torch.argmax(logits, dim=-1)  # torch.argmax(logits, dim=-1)
             
             # Store for metrics calculation
             all_predictions.extend(predictions.cpu().numpy())
