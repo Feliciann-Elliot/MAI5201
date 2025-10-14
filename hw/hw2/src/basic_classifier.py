@@ -82,7 +82,7 @@ class FeedforwardClassifier(nn.Module):
         
         # Step 1: Convert input_ids to embeddings
         # Shape: (batch_size, seq_len) → (batch_size, seq_len, embedding_dim)
-        embeddings = None  # Use self.embedding
+        embeddings = self.embedding(input_ids)  # Use self.embedding
         
         # Step 2: Aggregate embeddings across sequence length
         # We'll use mean pooling to convert variable-length sequences to fixed-size
@@ -92,23 +92,23 @@ class FeedforwardClassifier(nn.Module):
             # TODO: Use attention mask to ignore padding tokens
             # Hint: Multiply embeddings by attention_mask.unsqueeze(-1)
             # Then divide by the sum of attention_mask for proper averaging
-            masked_embeddings = None
-            pooled = None
+            masked_embeddings = embeddings * attention_mask.unsqueeze(-1)
+            pooled = masked_embeddings.sum(dim=1) / attention_mask.sum(dim=1, keepdim=True)
         else:
             # Simple mean pooling without mask
-            pooled = None  # Use torch.mean along dimension 1
+            pooled = torch.mean(embeddings, dim=1)  # Use torch.mean along dimension 1
         
         # Step 3: Pass through hidden layers with ReLU and dropout
         # Shape: (batch_size, embedding_dim) → (batch_size, hidden_dim)
-        hidden1_out = None  # Apply hidden1, then ReLU, then dropout
+        hidden1_out = self.dropout(F.relu(self.hidden1(pooled)))  # Apply hidden1, then ReLU, then dropout
         
         # Step 4: Second hidden layer
         # Shape: (batch_size, hidden_dim) → (batch_size, hidden_dim)
-        hidden2_out = None  # Apply hidden2, then ReLU, then dropout
+        hidden2_out = self.dropout(F.relu(self.hidden2(hidden1_out)))  # Apply hidden2, then ReLU, then dropout
         
         # Step 5: Output layer (no activation - we'll use CrossEntropyLoss)
         # Shape: (batch_size, hidden_dim) → (batch_size, num_classes)
-        logits = None  # Apply output layer
+        logits = self.output(hidden2_out)  # Apply output layer
         
         return logits
 
