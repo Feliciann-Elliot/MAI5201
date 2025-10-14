@@ -20,6 +20,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 import numpy as np
 from typing import Dict, List, Tuple, Optional
+from sklearn.metrics import precision_recall_fscore_support
 from tqdm import tqdm
 
 
@@ -279,8 +280,11 @@ def evaluate_model(model: nn.Module, test_loader: DataLoader,
                 attention_mask = attention_mask.to(device)
             
             # TODO: Get predictions
-            logits = None  # model forward pass
-            predictions = None  # torch.argmax(logits, dim=-1)
+            if attention_mask is not None:
+                logits = model(input_ids, attention_mask=attention_mask)  # model forward pass
+            else:
+                logits = model(input_ids)
+                predictions = torch.argmax(logits, dim=-1)  # torch.argmax(logits, dim=-1)
             
             # Store for metrics calculation
             all_predictions.extend(predictions.cpu().numpy())
@@ -294,9 +298,13 @@ def evaluate_model(model: nn.Module, test_loader: DataLoader,
     
     # TODO: Add more metrics (precision, recall, F1)
     # Hint: You can use sklearn.metrics for additional metrics
+    precision, recall, f1, _ = precision_recall_fscore_support(all_labels, all_predictions, average='weighted')
     
     metrics = {
         'accuracy': accuracy,
+        'precision': precision,
+        'recall': recall,
+        'f1_score': f1,
         'num_samples': len(all_labels),
         'num_correct': (all_predictions == all_labels).sum()
     }
