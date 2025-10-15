@@ -3,9 +3,9 @@ MAI 5201 - Homework 2: Neural Networks for NLP
 Part 1: Basic Neural Text Classification
 Q2: Training Loop Implementation (15 pts)
 
-Student Name: [Your Name Here]
-Student ID: [Your ID Here]
-Date: [Date]
+Student Name: Feliciann Elliot
+Student ID: 1022055
+Date: October 14, 2025
 
 Instructions:
 - Implement the training and validation functions below
@@ -20,8 +20,26 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 import numpy as np
 from typing import Dict, List, Tuple, Optional
+from sklearn.metrics import precision_recall_fscore_support
 from tqdm import tqdm
 
+def _ensure_vocab_built_from_loader(loader):
+    ds = getattr(loader, "dataset", None)
+    tok = getattr(ds, "tokenizer", None)
+    if tok is None:
+        return
+
+    needs_build = False
+    if hasattr(tok, "vocab_built"): # Check for vocab_built first, as per SimpleTokenizer
+        needs_build = not bool(getattr(tok, "vocab_built", True))
+    elif hasattr(tok, "is_built"): # Fallback for other potential tokenizers
+        needs_build = not bool(getattr(tok, "is_built", True))
+    elif hasattr(tok, "word2id"):
+        needs_build = len(getattr(tok, "word2id", {})) == 0
+
+    # Build from raw texts if available
+    if needs_build and hasattr(ds, "texts") and ds.texts:
+        tok.build_vocab(ds.texts)
 
 def train_epoch(model: nn.Module, train_loader: DataLoader, optimizer: optim.Optimizer, 
                 criterion: nn.Module, device: torch.device) -> Tuple[float, float]:
@@ -39,10 +57,13 @@ def train_epoch(model: nn.Module, train_loader: DataLoader, optimizer: optim.Opt
         Tuple[float, float]: Average loss and accuracy for the epoch
     """
     # TODO: Implement training for one epoch
+    _ensure_vocab_built_from_loader(train_loader)
+
     
     # Step 1: Set model to training mode
     model.train()
-    
+
+
     total_loss = 0.0
     correct_predictions = 0
     total_samples = 0
@@ -59,20 +80,26 @@ def train_epoch(model: nn.Module, train_loader: DataLoader, optimizer: optim.Opt
         
         # Step 3: Zero gradients
         # TODO: Clear gradients from previous iteration
+        optimizer.zero_grad()
         
         # Step 4: Forward pass
         # TODO: Get model predictions
-        logits = None  # Pass input_ids (and attention_mask if available) to model
+        if attention_mask is not None:
+            logits = model(input_ids, attention_mask=attention_mask) # Pass input_ids (and attention_mask if available) to model
+        else:
+            logits = model(input_ids)
         
         # Step 5: Calculate loss
         # TODO: Compute loss using criterion
-        loss = None
+        loss = criterion(logits, labels)
         
         # Step 6: Backward pass
         # TODO: Compute gradients
+        loss.backward()
         
         # Step 7: Update weights
         # TODO: Apply optimizer step
+        optimizer.step()
         
         # Step 8: Track metrics
         total_loss += loss.item()
@@ -104,10 +131,11 @@ def validate_epoch(model: nn.Module, val_loader: DataLoader, criterion: nn.Modul
         Tuple[float, float]: Average loss and accuracy for the epoch
     """
     # TODO: Implement validation for one epoch
+    _ensure_vocab_built_from_loader(val_loader)
     
     # Step 1: Set model to evaluation mode
     model.eval()
-    
+
     total_loss = 0.0
     correct_predictions = 0
     total_samples = 0
@@ -124,11 +152,15 @@ def validate_epoch(model: nn.Module, val_loader: DataLoader, criterion: nn.Modul
             
             # Step 3: Forward pass (no gradients needed)
             # TODO: Get model predictions
-            logits = None
+            if attention_mask is not None:
+                logits = model(input_ids, attention_mask=attention_mask)
+            else:
+                logits = model(input_ids)
+
             
             # Step 4: Calculate loss
             # TODO: Compute loss
-            loss = None
+            loss = criterion(logits, labels)
             
             # Step 5: Track metrics
             total_loss += loss.item()
@@ -171,8 +203,8 @@ def train_model(model: nn.Module, train_loader: DataLoader, val_loader: DataLoad
     
     # TODO: Initialize optimizer and loss function
     # Hint: Use Adam optimizer and CrossEntropyLoss
-    optimizer = None  # torch.optim.Adam(model.parameters(), lr=learning_rate)
-    criterion = None  # nn.CrossEntropyLoss()
+    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)  # torch.optim.Adam(model.parameters(), lr=learning_rate)
+    criterion = nn.CrossEntropyLoss()  # nn.CrossEntropyLoss()
     
     # Initialize tracking variables
     history = {
@@ -216,7 +248,7 @@ def train_model(model: nn.Module, train_loader: DataLoader, val_loader: DataLoad
             # TODO: Update best validation loss and save model state
             best_val_loss = val_loss
             patience_counter = 0
-            best_model_state = None  # Save model.state_dict()
+            best_model_state = model.state_dict()  # Save model.state_dict()
             print(f"✓ New best validation loss: {val_loss:.4f}")
         else:
             # TODO: Increment patience counter
@@ -230,7 +262,7 @@ def train_model(model: nn.Module, train_loader: DataLoader, val_loader: DataLoad
     
     # TODO: Load best model state
     if best_model_state is not None:
-        pass  # model.load_state_dict(best_model_state)
+        model.load_state_dict(best_model_state)  # model.load_state_dict(best_model_state)
         print("Loaded best model from training")
     
     return history
@@ -269,8 +301,12 @@ def evaluate_model(model: nn.Module, test_loader: DataLoader,
                 attention_mask = attention_mask.to(device)
             
             # TODO: Get predictions
-            logits = None  # model forward pass
-            predictions = None  # torch.argmax(logits, dim=-1)
+            if attention_mask is not None:
+                logits = model(input_ids, attention_mask=attention_mask)  # model forward pass
+            else:
+                logits = model(input_ids)
+            
+            predictions = torch.argmax(logits, dim=-1)  # torch.argmax(logits, dim=-1)
             
             # Store for metrics calculation
             all_predictions.extend(predictions.cpu().numpy())
@@ -284,9 +320,13 @@ def evaluate_model(model: nn.Module, test_loader: DataLoader,
     
     # TODO: Add more metrics (precision, recall, F1)
     # Hint: You can use sklearn.metrics for additional metrics
+    precision, recall, f1, _ = precision_recall_fscore_support(all_labels, all_predictions, average='weighted')
     
     metrics = {
         'accuracy': accuracy,
+        'precision': precision,
+        'recall': recall,
+        'f1_score': f1,
         'num_samples': len(all_labels),
         'num_correct': (all_predictions == all_labels).sum()
     }

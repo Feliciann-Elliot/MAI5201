@@ -13,10 +13,30 @@ import numpy as np
 from typing import Dict, List, Tuple, Optional
 import re
 from collections import Counter
+import os, tempfile 
+
+os.environ.pop("HUGGINGFACE_HUB_TOKEN", None)
+os.environ.pop("HF_TOKEN", None)
+
+# Put HF cache in a fresh temp dir so no cached token is read
+if "HF_HOME" not in os.environ:
+    os.environ["HF_HOME"] = tempfile.mkdtemp(prefix="hf_home_")
+
+# Try to delete any cached token programmatically
+try:
+    from huggingface_hub import HfFolder
+    HfFolder.delete_token()
+    # Some versions need an explicit None save to clear state
+    try:
+        HfFolder.save_token(None)  # no-op if unsupported
+    except Exception:
+        pass
+except Exception:
+    pass
 
 # Import Hugging Face datasets for real datasets
 try:
-    from datasets import load_dataset
+    from datasets import load_dataset, DownloadConfig
     DATASETS_AVAILABLE = True
     print("Hugging Face datasets available - will load real data")
 except ImportError:
@@ -164,7 +184,7 @@ def load_imdb_dataset(data_path: str = None, max_samples: int = None) -> Tuple[L
     
     try:
         # Load real IMDB dataset from Hugging Face
-        dataset = load_dataset("imdb")
+        dataset = load_dataset("imdb", download_config=DownloadConfig(token=False))
         
         # Extract train and test splits
         train_split = dataset['train']
@@ -239,7 +259,7 @@ def load_ag_news_dataset(data_path: str = None, max_samples: int = None) -> Tupl
     
     try:
         # Load real AG_NEWS dataset from Hugging Face
-        dataset = load_dataset("ag_news")
+        dataset = load_dataset("ag_news", download_config=DownloadConfig(token=False))
         
         # Extract train and test splits
         train_split = dataset['train']
