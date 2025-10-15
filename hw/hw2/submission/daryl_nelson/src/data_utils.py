@@ -43,6 +43,13 @@ class TextDataset(Dataset):
         self.labels = labels
         self.tokenizer = tokenizer
         self.max_length = max_length
+        if hasattr(self.tokenizer, "build_vocab"):
+            self.tokenizer.build_vocab(self.texts)
+
+    def build_vocab(self):
+        """Explicit vocab building method (optional use)."""
+        if hasattr(self.tokenizer, "build_vocab"):
+            self.tokenizer.build_vocab(self.texts)
     
     def __len__(self):
         return len(self.texts)
