@@ -25,6 +25,7 @@ from data_utils import (load_imdb_dataset, load_ag_news_dataset,
                        create_data_loaders, print_dataset_stats, 
                        calculate_random_baseline, SimpleTokenizer)
 from training import evaluate_model
+from basic_classifier import FeedforwardClassifier
 
 
 class MultiDatasetEvaluator:
@@ -36,6 +37,10 @@ class MultiDatasetEvaluator:
         self.results = {}
         self.datasets_info = {}
     
+    def evaluate_model_on_all_datasets(self, model=None, tokenizer=None, device=None):
+        return self.run_multi_dataset_evaluation(model, tokenizer, device)
+
+
     def load_all_datasets(self) -> Dict[str, Tuple[List[str], List[int]]]:
         """
         Load all available datasets for evaluation.
@@ -43,7 +48,7 @@ class MultiDatasetEvaluator:
         Returns:
             Dictionary mapping dataset names to (texts, labels) tuples
         """
-        datasets = {}
+        datasets: Dict[str, Dict[str, Any]] = {}
         
         # TODO: Load IMDb dataset
         print("Loading datasets...")
@@ -51,7 +56,12 @@ class MultiDatasetEvaluator:
         # IMDb Movie Reviews (Binary Sentiment)
         try:
             train_texts, train_labels, test_texts, test_labels = load_imdb_dataset()
-            datasets['imdb'] = (test_texts, test_labels)  # Use test set for evaluation
+            datasets['imdb'] = {
+                "train_texts": train_texts,
+                "train_labels": train_labels,
+                "test_texts": test_texts,
+                "test_labels": test_labels,
+            }
             self.datasets_info['imdb'] = {
                 'name': 'IMDb Movie Reviews',
                 'domain': 'Entertainment/Opinion',
@@ -65,7 +75,12 @@ class MultiDatasetEvaluator:
         # AG News (4-class Topic Classification)
         try:
             train_texts, train_labels, test_texts, test_labels = load_ag_news_dataset()
-            datasets['ag_news'] = (test_texts, test_labels)
+            datasets['ag_news'] = {
+                "train_texts": train_texts,
+                "train_labels": train_labels,
+                "test_texts": test_texts,
+                "test_labels": test_labels,
+            }
             self.datasets_info['ag_news'] = {
                 'name': 'AG News',
                 'domain': 'News/Journalism', 
@@ -98,17 +113,31 @@ class MultiDatasetEvaluator:
             Dictionary containing evaluation results
         """
         print(f"\nEvaluating on {dataset_name}...")
-        
+
+        # Ensure tokenizer is usable (your SimpleTokenizer needs build_vocab first)
+        if hasattr(tokenizer, "vocab_built") and not tokenizer.vocab_built:
+            tokenizer.build_vocab(texts)
+
+        if model is None:
+            num_classes = len(set(labels))
+            model = FeedforwardClassifier(
+                vocab_size=tokenizer.vocab_size,
+                embedding_dim=128,
+                hidden_dim=256,
+                num_classes=num_classes,
+                dropout_prob=0.3
+            ).to(device)
+
         # TODO: Create data loader for evaluation
         from torch.utils.data import DataLoader
         from data_utils import TextDataset
         
         # Create dataset and data loader
-        eval_dataset = None  # TextDataset(texts, labels, tokenizer, max_length=512)
-        eval_loader = None   # DataLoader(eval_dataset, batch_size=32, shuffle=False)
+        eval_dataset = TextDataset(texts, labels, tokenizer, max_length=512)  # TextDataset(texts, labels, tokenizer, max_length=512)
+        eval_loader = DataLoader(eval_dataset, batch_size=32, shuffle=False)   # DataLoader(eval_dataset, batch_size=32, shuffle=False)
         
         # TODO: Evaluate model
-        results = None  # evaluate_model(model, eval_loader, device)
+        results = evaluate_model(model, eval_loader, device)  # evaluate_model(model, eval_loader, device)
         
         # TODO: Add detailed analysis
         # Get predictions for confusion matrix and classification report
@@ -161,6 +190,7 @@ class MultiDatasetEvaluator:
     
     def run_multi_dataset_evaluation(self, model: nn.Module, tokenizer, 
                                    device: torch.device) -> Dict[str, Dict]:
+
         """
         Evaluate model on all available datasets.
         
@@ -174,14 +204,31 @@ class MultiDatasetEvaluator:
         """
         # TODO: Load all datasets
         datasets = self.load_all_datasets()
+
+        if tokenizer is None:
+            try:
+                from data_utils import SimpleTokenizer
+                # Try to read vocab size from model.embedding
+                emb_size = None
+                if hasattr(model, "embedding") and hasattr(model.embedding, "num_embeddings"):
+                    emb_size = int(model.embedding.num_embeddings)
+                tokenizer = SimpleTokenizer(vocab_size=emb_size or 1000)
+            except Exception:
+                tokenizer = None
         
         # TODO: Evaluate on each dataset
-        all_results = {}
+        all_results: Dict[str, Dict[str, Any]] = {}
         
-        for dataset_name, (texts, labels) in datasets.items():
+        for dataset_name, data in datasets.items():
             try:
+                if hasattr(tokenizer, "vocab_built"):
+                    tokenizer.build_vocab(data['train_texts'] + data['test_texts'])
+                
+                test_texts = data['test_texts']
+                test_labels = data['test_labels']
+
                 results = self.evaluate_on_dataset(
-                    model, dataset_name, texts, labels, tokenizer, device
+                    model, dataset_name, test_texts, test_labels, tokenizer, device
                 )
                 all_results[dataset_name] = results
                 self.results[dataset_name] = results
@@ -321,7 +368,7 @@ class MultiDatasetEvaluator:
         plt.show()
 
 
-def run_complete_evaluation(model: nn.Module, tokenizer, device: torch.device = None) -> Dict[str, Any]:
+def run_complete_evaluation(model: nn.Module = None, tokenizer = None, device: torch.device = None) -> Dict[str, Any]:
     """
     Run complete multi-dataset evaluation and analysis.
     
@@ -335,6 +382,13 @@ def run_complete_evaluation(model: nn.Module, tokenizer, device: torch.device = 
     """
     if device is None:
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+    if tokenizer is None:
+        try:
+            from data_utils import SimpleTokenizer
+            tokenizer = SimpleTokenizer()
+        except Exception:
+            tokenizer = None
     
     # TODO: Initialize evaluator and run evaluation
     evaluator = MultiDatasetEvaluator()
@@ -369,12 +423,7 @@ def run_complete_evaluation(model: nn.Module, tokenizer, device: torch.device = 
     # TODO: Create visualizations
     evaluator.plot_performance_comparison()
     
-    return {
-        'detailed_results': results,
-        'summary': summary_df,
-        'analysis': analysis,
-        'evaluator': evaluator
-    }
+    return results
 
 
 # Example usage and testing
