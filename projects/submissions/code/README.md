@@ -23,8 +23,6 @@ MAI5201_Course_Project/
 
 ## Setup Instructions
 
-### 1. Clone the Repository
-
 ```bash
 
 
