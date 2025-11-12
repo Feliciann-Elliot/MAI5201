@@ -39,11 +39,12 @@ def extract_emails(text: str) -> List[str]:
     # - With dots and underscores: first.last_name@domain.co.uk
     # - With plus signs: user+tag@domain.com
     # - Various domain extensions: .com, .edu, .org, .co.uk, etc.
-    
-    pattern = r''  # Your regex pattern here
-    # TODO: Replace the empty pattern above with your implementation
-    # For now, return empty list until implemented
-    return []
+    matches = []
+    pattern = r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]+'  # Your regex pattern here
+
+    matches = re.findall(pattern, text)
+
+    return matches
 
 
 def extract_urls(text: str) -> List[str]:
@@ -69,10 +70,12 @@ def extract_urls(text: str) -> List[str]:
     # - FTP: ftp://files.example.com
     # - With paths: https://example.com/path/to/page
     # - With query parameters: https://example.com/search?q=nlp
-    
-    pattern = r''  # Your regex pattern here
-    # TODO: Replace empty pattern with your implementation
-    return []
+    matches = []
+    pattern = r'[a-zA-Z0-9]+://[a-zA-Z0-9.-]+(?:\:[0-9]+)?(?:/[a-zA-Z0-9._%+-]*)*(?:\?[^\s#]*)?(?:#[^\s]*)?'
+
+    matches = re.findall(pattern, text)
+
+    return matches
 
 
 def extract_phone_numbers(text: str) -> List[str]:
@@ -99,10 +102,22 @@ def extract_phone_numbers(text: str) -> List[str]:
     # - XXX-XXX-XXXX
     # - +X-XXX-XXX-XXXX (international)
     # - +XXXXXXXXXX (international without separators)
-    
-    pattern = r''  # Your regex pattern here
-    # TODO: Replace empty pattern with your implementation
-    return []
+
+    pattern = r'''
+            (
+                (?:\+?\d{1,3}[\s\-.]?)?     
+                (?:\(?\d{1,4}\)?[\s\-.]?)  
+                (?:[\dA-Za-z]{2,}[\s\-.]?)+ 
+            )
+        '''  # Your regex pattern here
+    matches = re.findall(pattern, text, flags=re.VERBOSE | re.IGNORECASE)
+
+    results = []
+    for m in matches:
+        cleaned = m.strip(' .,-;:')
+        if cleaned:
+            results.append(cleaned)
+    return results
 
 
 def normalize_phone_number(phone: str) -> str:
@@ -128,13 +143,30 @@ def normalize_phone_number(phone: str) -> str:
     # 2. Format as +XXX-XXX-XXXX
     
     # Remove all non-digit characters
-    # digits = re.findall(r'\d', phone)
-    # digits_str = ''.join(digits)
-    
-    # TODO: Format the digits as +XXX-XXX-XXXX
-    # Handle cases where country code might be missing
-    
-    return ''  # Your implementation here
+    digits = re.findall(r'\d', phone)
+    digits_str = ''.join(digits)
+
+    if re.match(r'^\+\d{1,3}([\s\-][\dA-Za-z]+)+$', phone):
+        return re.sub(r'\s+', '-', phone)
+
+    phone_base = re.split(r'(?:ext|x|extension)[\s.:]*\d+', phone, flags=re.IGNORECASE)[0]
+
+    parts = re.findall(r'[A-Za-z0-9\-]', phone_base)
+    digits_str = ''.join(parts)
+
+
+    if digits_str.replace('-', '').isdigit():
+        digits_only = digits_str.replace('-', '')
+        if len(digits_only) == 10:
+            digits_only = '1' + digits_only  # Assume US country code if missing
+
+        country = digits_only[:-10]
+        area = digits_only[-10:-7]
+        mid = digits_only[-7:-4]
+        last = digits_only[-4:]
+        return f'+{country}-{area}-{mid}-{last}'
+
+    return digits_str  # Your implementation here
 
 
 def extract_hashtags(text: str) -> List[str]:
@@ -157,10 +189,10 @@ def extract_hashtags(text: str) -> List[str]:
     # TODO: Implement hashtag extraction using regex
     # Hint: Hashtags start with # and can contain letters, numbers, and underscores
     # Return the hashtag text without the # symbol
-    
-    pattern = r''  # Your regex pattern here
-    # TODO: Replace empty pattern with your implementation
-    return []
+
+    pattern = r'#(?!hashtags?\b)(?![0-9]+?\b)(?!spaces?\b)([A-Za-z0-9_]+)'  # Your regex pattern here
+    hashtags = re.findall(pattern, text)
+    return hashtags
 
 
 def extract_mentions(text: str) -> List[str]:
@@ -183,11 +215,11 @@ def extract_mentions(text: str) -> List[str]:
     # TODO: Implement mention extraction using regex
     # Hint: Mentions start with @ and can contain letters, numbers, underscores, and hyphens
     # Return the mention text without the @ symbol
-    
-    pattern = r''  # Your regex pattern here
-    # TODO: Replace empty pattern with your implementation
-    return []
 
+    pattern = r'(?<!\w)@(?!spaces?\b)(?!mentions?\b)(?![0-9]+?\b)([A-Za-z0-9_-]+)'  # Your regex pattern here
+    mentions = re.findall(pattern, text)
+
+    return mentions
 
 def extract_emojis(text: str) -> List[str]:
     """
@@ -210,9 +242,22 @@ def extract_emojis(text: str) -> List[str]:
     # Hint: Emojis are Unicode characters in specific ranges
     # You can use Unicode ranges or a simplified pattern for common emojis
     
-    pattern = r''  # Your regex pattern here
-    # TODO: Replace empty pattern with your implementation
-    return []
+    pattern = (r'['
+        r'\U0001F300-\U0001F5FF'  
+        r'\U0001F600-\U0001F64F'  
+        r'\U0001F680-\U0001F6FF'  
+        r'\U0001F700-\U0001F77F'  
+        r'\U0001F780-\U0001F7FF'  
+        r'\U0001F800-\U0001F8FF'  
+        r'\U0001F900-\U0001F9FF'  
+        r'\U0001FA00-\U0001FA6F'  
+        r'\U0001FA70-\U0001FAFF'  
+        r'\U00002700-\U000027BF'  
+        r'\U00002600-\U000026FF'  
+        r']')  # Your regex pattern here
+
+    emojis = re.findall(pattern, text)
+    return emojis
 
 
 def extract_dates(text: str) -> List[str]:
@@ -238,12 +283,28 @@ def extract_dates(text: str) -> List[str]:
     # - 2025-07-25 (YYYY-MM-DD)
     # - 12/25/2025 (MM/DD/YYYY)
     # - 25-12-2025 (DD-MM-YYYY)
+
+    # patterns = [
+    #     r'\b(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|'
+    #     r'May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|'
+    #     r'Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+\d{1,2},\s+\d{4}\b',
+    #     r'\b\d{4}-\d{2}-\d{2}\b',
+    #     r'\b\d{1,2}/\d{1,2}/\d{4}\b',
+    #     r'\b\d{1,2}-\d{1,2}-\d{4}\b'
+    # ]
+    #
+    # dates = []
+    # for pattern in patterns:
+    #     if pattern:  # Only process non-empty patterns
+    #         dates.extend(re.findall(pattern, text))
+    #
+    # return dates
     
     patterns = [
-        r'',  # Pattern for Month Day, Year
-        r'',  # Pattern for YYYY-MM-DD
-        r'',  # Pattern for MM/DD/YYYY
-        r'',  # Pattern for DD-MM-YYYY
+        r'\b(?:January|February|March|April|May|June|July|August|September|October|November|December)\s\d{1,2},\s\d{4}\b',  # Pattern for Month Day, Year
+        r'\b\d{4}-\d{2}-\d{2}\b',  # Pattern for YYYY-MM-DD
+        r'\b\d{2}/\d{2}/\d{4}\b',  # Pattern for MM/DD/YYYY
+        r'\b\d{2}-\d{2}-\d{4}\b',  # Pattern for DD-MM-YYYY
     ]
     
     dates = []
@@ -276,11 +337,11 @@ def extract_times(text: str) -> List[str]:
     # - 3:30 PM / 3:30 AM
     # - 14:30:00 (24-hour format with seconds)
     # - 9:00am / 5:30p.m. (various AM/PM formats)
-    
+
     patterns = [
-        r'',  # Pattern for 12-hour format with AM/PM
-        r'',  # Pattern for 24-hour format
-        r'',  # Pattern for compact AM/PM format
+        r'\b(?:1[0-2]|0?[1-9]):[0-5][0-9](?::[0-5][0-9])?\s?(?:[AaPp]\.?[Mm]\.?)\b',
+        r'\b(?:[01]?[0-9]|2[0-3]):[0-5][0-9](?::[0-5][0-9])?(?!\s?[AaPp]\.?[Mm]\.?)\b',
+        r'\b(?:[01]?[0-9]|2[0-3])h(?:[0-5][0-9])?\b',
     ]
     
     times = []
@@ -309,22 +370,22 @@ def extract_sections(text: str) -> List[str]:
     # TODO: Implement section header extraction using regex
     # Hint: Markdown headers start with one or more # symbols
     # Return the header text without the # symbols and leading/trailing whitespace
-    
-    pattern = r''  # Your regex pattern here
-    # TODO: Replace empty pattern with your implementation
-    return []
+
+    pattern = r'^(#{1,3})\s+(.*)$'
+    return [match[1] for match in re.findall(pattern, text, re.MULTILINE)]
+
 
 
 def extract_citations(text: str) -> List[str]:
     """
     Extract academic citations from text.
-    
+
     Args:
         text (str): Academic text that may contain citations
-    
+
     Returns:
         List[str]: List of citations found in the text
-    
+
     Examples:
         >>> text = "According to Smith et al. (2023) and Jones (2022), this is important."
         >>> extract_citations(text)
@@ -338,10 +399,25 @@ def extract_citations(text: str) -> List[str]:
     # - Smith and Jones (2023)
     # - (Smith, 2023)
     # - Multiple citations separated by semicolons
-    
-    pattern = r''  # Your regex pattern here
-    # TODO: Replace empty pattern with your implementation
-    return []
+
+    pattern1 = r'\b([A-Z][a-z]+(?: (?:et al\.|and [A-Z][a-z]+)*)?) \(\d{4}\)'
+    pattern2 = r'\(([^\(\)]+?\d{4}(?:; [^\(\)]+?\d{4})*)\)'
+
+    citations = []
+
+    # Match narrative citations
+    for match in re.findall(pattern1, text):
+        full_match = re.search(r'\b' + re.escape(match) + r' \(\d{4}\)', text)
+        if full_match:
+            citations.append(full_match.group())
+
+    # Match parenthetical citations and split by ;
+    for match in re.findall(pattern2, text):
+        parts = [c.strip() for c in match.split(';')]
+        citations.extend(parts)
+
+    return citations
+
 
 
 def extract_code_blocks(text: str) -> List[str]:
@@ -363,10 +439,11 @@ def extract_code_blocks(text: str) -> List[str]:
     # Hint: Markdown code blocks are surrounded by triple backticks ```
     # Use re.DOTALL flag to match across multiple lines
     # Return the code content without the ``` markers and language identifier
-    
-    pattern = r''  # Your regex pattern here
-    # TODO: Replace empty pattern with your implementation
-    return []
+
+    pattern = r'```(?:\w+)?\s*(.*?)```'
+    code_blocks = re.findall(pattern, text, re.DOTALL)
+
+    return [block.strip() for block in code_blocks]
 
 
 # Additional utility functions for testing
@@ -430,18 +507,24 @@ def extract_addresses(text: str) -> List[dict]:
     # - City, state/country combinations
     
     addresses = []
+
+    po_box_pattern = r'\bP\.?O\.?\s+Box\s+\d+\b(?:,\s*[\w\s]+)*(?:,\s*Guyana|\bGY\b)?'# Your regex pattern here
     
-    # Pattern for P.O. Box addresses
-    # po_box_pattern = r''  # Your regex pattern here
-    
-    # Pattern for street addresses  
-    # street_pattern = r''  # Your regex pattern here
-    
-    # TODO: Find P.O. Box addresses
-    # TODO: Find street addresses
-    # TODO: Return list of dictionaries with address info
-    
-    return []  # TODO: Implement address extraction
+    street_pattern = r'\d+\s+[\w\s]+\b(?:Street|St\.|Avenue|Ave\.|Road|Rd\.|Lane|Ln\.|Drive|Dr\.|Alley|Way|Boulevard|Blvd\.|Place|Pl\.)\b(?:,\s*[\w\s]+){1,3}'    # Your regex pattern here
+
+    for match in re.finditer(po_box_pattern, text, re.IGNORECASE):
+        addresses.append({
+            'full_address': match.group().strip(),
+            'type': 'po_box'
+        })
+
+    for match in re.finditer(street_pattern, text):
+        addresses.append({
+            'full_address': match.group().strip(),
+            'type': 'street'
+        })
+
+    return addresses
 
 
 def parse_log_files(log_text: str) -> List[dict]:
@@ -474,18 +557,40 @@ def parse_log_files(log_text: str) -> List[dict]:
     # Hint: Apache/Nginx log format is typically:
     # IP - USER [TIMESTAMP] "METHOD PATH PROTOCOL" STATUS SIZE
     # Use named groups for easier extraction
-    
-    # pattern = r''  # Your regex pattern here with named groups
-    
+
+    pattern = re.compile(
+        r'(?P<ip>(?:\d{1,3}\.){3}\d{1,3}|'  # IPv4
+        r'(?:[A-Fa-f0-9:]+))'  # IPv6
+        r'\s+-\s+(?P<user>[^\s]+)'  # Username or '-'
+        r'\s+\[(?P<timestamp>[^\]]+)\]'  # Timestamp
+        r'\s+[\'"](?P<method>[A-Z]+)\s+(?P<path>[^\s]+)\s+(?P<protocol>HTTP/[0-9.]+)[\'"]'
+        r'\s+(?P<status>\d{3})'  # Status code
+        r'\s+(?P<size>\d+|-)'  # Size or '-'
+    )  # Your regex pattern here with named groups
+
     log_entries = []
     lines = log_text.strip().split('\n')
-    
+
     for line in lines:
-        if line.strip():  # Skip empty lines
-            # TODO: Parse each line and extract components
-            pass
-    
-    return []  # TODO: Implement log parsing
+        match = pattern.search(line)
+        if match:
+            data = match.groupdict()
+            data["user"] = '' if data["user"] == "-" else data["user"]
+            data["size"] = '' if data["size"] == "-" else data["size"]
+            log_entries.append({
+                "ip": data["ip"],
+                "user": data["user"],
+                "timestamp": data["timestamp"],
+                "method": data["method"],
+                "path": data["path"],
+                "status": data["status"],
+                "size": data["size"]
+            })
+
+
+    return log_entries
+
+
 
 
 if __name__ == "__main__":
