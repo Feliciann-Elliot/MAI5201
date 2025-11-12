@@ -16,9 +16,8 @@ Instructions:
 - Do not modify function signatures
 """
 
-import math
 from typing import Dict, List, Tuple, Set
-import string, re
+import string
 from text_features import extract_bag_of_words, build_vocabulary, text_to_vector
 
 
@@ -59,21 +58,7 @@ def add_ngram_features(texts: List[str], n: int = 2) -> Dict[str, int]:
     # Step 4: Return combined vocabulary
     
     # For now, return empty dictionary until implemented
-    
-    grams = set()
-
-    for text in texts:
-        words = re.findall(r'\b\w+\b', text.lower())
-        length = len(words)
-        for size in range(1, n + 1):
-            for i in range(length - size + 1):
-                ngram = ' '.join(words[i:i + size])
-                grams.add(ngram)
-    
-    sorted_grams = sorted(grams)
-    vocab = {gram: idx for idx, gram in enumerate(sorted_grams)}
-    
-    return vocab
+    return {}
 
 
 def compute_tf_idf_features(texts: List[str], vocab: Dict[str, int]) -> List[List[float]]:
@@ -120,41 +105,8 @@ def compute_tf_idf_features(texts: List[str], vocab: Dict[str, int]) -> List[Lis
     # Step 4: Return list of TF-IDF vectors
     
     # For now, return empty list until implemented
-    
-    totalDocs = len(texts)
-    if totalDocs == 0 or not vocab:
-        return []
+    return []
 
-    docWordCounts = []
-    docLengths = []
-
-    for text in texts:
-        word_count = extract_bag_of_words(text)
-        docWordCounts.append(word_count)
-        docLengths.append(sum(word_count.values()))
-    
-    docFreq = {word: 0 for word in vocab}
-    for wordCount in docWordCounts:
-        for word in wordCount:
-            if word in vocab:
-                docFreq[word] += 1
-
-    idfScores = {
-        word: math.log(totalDocs / (docFreq[word] + 1))  # +1 to avoid division by zero
-        for word, freq in docFreq.items()
-    }
-
-    tf_idf_vectors = []
-    for wordCount, length in zip(docWordCounts, docLengths):
-        vector = [0.0] * len(vocab)
-        if length > 0:
-            for word, count in wordCount.items():
-                if word in vocab:
-                    tf = count / length
-                    vector[vocab[word]] = tf * idfScores[word]
-        tf_idf_vectors.append(vector)
-
-    return tf_idf_vectors
 
 def extract_feature_statistics(texts: List[str]) -> List[Dict[str, float]]:
     """
@@ -202,50 +154,8 @@ def extract_feature_statistics(texts: List[str]) -> List[Dict[str, float]]:
     # Step 4: Return feature dictionaries
     
     # For now, return empty list until implemented
+    return []
 
-    featureStats = []
-    for text in texts:
-        features = {}
-
-        word_dict = extract_bag_of_words(text)
-        words = list(word_dict.keys())
-        word_counts = word_dict
-
-        total_word_count = sum(word_counts.values())
-
-        char_count = sum(len(word) * word_counts[word] for word in words)
-        
-        clean_words = re.findall(r'\b\w+\b', text.lower())
-        total_word_count = len(clean_words)
-
-        char_count = sum(len(word) for word in clean_words)
-
-        sentence_count = text.count('.') + text.count('!') + text.count('?')        
-        
-        avg_word_length = (char_count / total_word_count) if total_word_count else 0
-        
-        unique_words = len(set(clean_words))
-        vocab_diversity = (unique_words / total_word_count) if total_word_count else 0
-        
-        exclamation_count = text.count('!')
-        question_count = text.count('?')
-
-        uppercase_chars = sum(1 for x in text if x.isupper())
-        den = len(text)
-        uppercase_ratio = (uppercase_chars / den) if den else 0
-        
-        features['word_count'] = total_word_count
-        features['char_count'] = char_count
-        features['sentence_count'] = sentence_count
-        features['avg_word_length'] = avg_word_length
-        features['vocab_diversity'] = vocab_diversity
-        features['exclamation_count'] = exclamation_count
-        features['question_count'] = question_count
-        features['uppercase_ratio'] = uppercase_ratio
-        
-        featureStats.append(features)
-    
-    return featureStats
 
 def build_feature_matrix(texts: List[str], feature_config: Dict[str, bool]) -> Tuple[List[List[float]], List[str]]:
     """
