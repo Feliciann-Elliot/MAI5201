@@ -142,6 +142,30 @@ git push origin paper-summary-1-[your-name]
 - **Due Date**: September 4, 2025 @ 11:59 PM (GYD)
 - **Submission Directory**: `paper-summaries/assignment-5/`
 
+### Assignment 6: GloVe Word Representations (2014)
+- **Paper**: "GloVe: Global Vectors for Word Representation" by Jeffrey Pennington, Richard Socher, Christopher D. Manning
+- **URL**: https://aclanthology.org/D14-1162/
+- **Due Date**: September 11, 2025 @ 11:59 PM (GYD)
+- **Submission Directory**: `paper-summaries/assignment-6/`
+
+### Assignment 7: Long Short-Term Memory Networks (1997)
+- **Paper**: "Long Short-Term Memory" by Sepp Hochreiter, Jürgen Schmidhuber
+- **URL**: https://deeplearning.cs.cmu.edu/S23/document/readings/LSTM.pdf
+- **Due Date**: September 18, 2025 @ 11:59 PM (GYD)
+- **Submission Directory**: `paper-summaries/assignment-7/`
+
+### Assignment 8: Language Models are Few-Shot Learners (2020)
+- **Paper**: "Language Models are Few-Shot Learners" by Tom B. Brown et al.
+- **URL**: https://arxiv.org/abs/2005.14165
+- **Due Date**: September 23, 2025 @ 11:59 PM (GYD)
+- **Submission Directory**: `paper-summaries/assignment-8/`
+
+### Assignment 9: Exploring the Limits of Transfer Learning with T5 (2020)
+- **Paper**: "Exploring the Limits of Transfer Learning with a Unified Text-to-Text Transformer" by Colin Raffel et al.
+- **URL**: https://arxiv.org/pdf/1910.10683
+- **Due Date**: September 30, 2025 @ 11:59 PM (GYD)
+- **Submission Directory**: `paper-summaries/assignment-9/`
+
 ---
 
 *For questions about assignments or technical issues with Git/GitHub, please email Dr. Clarke at christopher.clarke@uog.edu.gy or create an issue in the course repository.*
